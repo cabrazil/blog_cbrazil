@@ -10,22 +10,24 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const checkApi = async () => {
       try {
         const response = await fetch("/api/news");
         if (!response.ok) {
           throw new Error("Erro ao carregar artigos");
         }
         const data = await response.json();
+        console.log("Dados recebidos:", data);
         setNews(data);
+        setLoading(false);
       } catch (err) {
+        console.error("Erro:", err);
         setError(err instanceof Error ? err.message : "Erro ao carregar artigos");
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchArticles();
+    checkApi();
   }, []);
 
   if (loading) {
@@ -74,11 +76,17 @@ export default function Home() {
                 <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
                   Categorias
                 </Link>
+                <Link href="/ia-para-iniciantes" className="text-gray-600 hover:text-gray-900">
+                  IA para Iniciantes
+                </Link>
                 <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
                   Sobre
                 </Link>
                 <Link href="/contato" className="text-gray-600 hover:text-gray-900">
                   Contato
+                </Link>
+                <Link href="/admin" className="text-blue-600 hover:text-blue-800 font-medium">
+                  Admin
                 </Link>
               </nav>
             </div>
@@ -144,6 +152,15 @@ export default function Home() {
                 </article>
               ))}
             </div>
+
+            <div className="mt-12 text-center">
+              <Link 
+                href="/ia-para-iniciantes" 
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Ver todos os artigos sobre IA para Iniciantes
+              </Link>
+            </div>
           </div>
         </main>
 
@@ -160,6 +177,9 @@ export default function Home() {
                 </Link>
                 <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
                   Categorias
+                </Link>
+                <Link href="/ia-para-iniciantes" className="text-gray-600 hover:text-gray-900">
+                  IA para Iniciantes
                 </Link>
                 <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
                   Sobre
