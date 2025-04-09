@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id               Int               @id @default(autoincrement())
+  title            String
+  content          String
+  description      String
+  date             DateTime          @default(now())
+  imageUrl         String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  categoryId       Int
+  authorId         Int
+  userId           Int?
+  slug             String            @unique
+  published        Boolean           @default(false)
+  viewCount        Int               @default(0)
+  likeCount        Int               @default(0)
+  metadata         Json?
+  keywords         String[]
+  aiConfidence     Float?
+  aiGenerated      Boolean           @default(false)
+  aiModel          String?
+  aiPrompt         String?
+  aiGenerationLogs AiGenerationLog[]
+  author           Author            @relation(fields: [authorId], references: [id])
+  category         Category          @relation(fields: [categoryId], references: [id])
+  user             User?             @relation(fields: [userId], references: [id])
+  comments         Comment[]
+  tags             Tag[]             @relation("ArticleToTag")
+
+  @@index([slug])
+  @@index([published])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([userId])
+  @@index([date])
+  @@index([aiGenerated])
+}
+
+model Author {
+  id        Int        @id @default(autoincrement())
+  name      String
+  role      String
+  imageUrl  String
+  bio       String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  email     String?    @unique
+  website   String?
+  social    Json?
+  skills    String[]
+  aiModel   String?
+  isAi      Boolean    @default(false)
+  articles  Article[]
+  comments  Comment[]
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  description String?
+  imageUrl    String?
+  parentId    Int?
+  aiKeywords  String[]
+  aiPrompt    String?
+  articles    Article[]
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+}
+
+model Tag {
+  id        Int        @id @default(autoincrement())
+  name      String
+  slug      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  color     String?
+  aiRelated Boolean    @default(false)
+  articles  Article[] @relation("ArticleToTag")
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  articleId   Int
+  authorId    Int?
+  userId      Int?
+  approved    Boolean   @default(false)
+  parentId    Int?
+  ipAddress   String?
+  aiGenerated Boolean   @default(false)
+  aiModel     String?
+  article     Article  @relation(fields: [articleId], references: [id])
+  author      Author?   @relation(fields: [authorId], references: [id])
+  parent      Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  children    Comment[] @relation("CommentToComment")
+  user        User?     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  name          String
+  email         String
+  password      String
+  role          String     @default("user")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  preferences   Json?
+  aiPreferences Json?
+  articles      Article[]
+  comments      Comment[]
+}
+
+model AiPrompt {
+  id             Int               @id @default(autoincrement())
+  name           String
+  content        String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  isActive       Boolean           @default(true)
+  metadata       Json?
+  generationLogs AiGenerationLog[]
+}
+
+model AiGenerationLog {
+  id         Int       @id @default(autoincrement())
+  promptId   Int
+  articleId  Int?
+  createdAt  DateTime  @default(now())
+  success    Boolean   @default(true)
+  error      String?
+  tokensUsed Int?
+  cost       Float?
+  duration   Int?
+  article    Article? @relation(fields: [articleId], references: [id])
+  prompt     AiPrompt  @relation(fields: [promptId], references: [id])
+}
