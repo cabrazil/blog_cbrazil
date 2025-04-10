@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { slugify } = require('../src/utils/slugify');
+const { getRandomImage } = require('../src/config/unsplash');
 
 const prisma = new PrismaClient();
 
@@ -101,7 +102,7 @@ A IA também apresenta desafios importantes:
 ## Conclusão
 
 A Inteligência Artificial está transformando rapidamente o mundo em que vivemos. Entender seus conceitos básicos é essencial para navegar neste novo cenário tecnológico. À medida que a IA continua a evoluir, será cada vez mais importante que todos tenham uma compreensão básica de como ela funciona e seus impactos na sociedade.`,
-        imageUrl: "https://source.unsplash.com/random/800x600/?artificial-intelligence",
+        imageUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600&q=80",
         keywords: ["inteligência artificial", "IA", "conceitos básicos", "iniciantes", "fundamentos"],
       },
       {
@@ -179,7 +180,7 @@ Se você está interessado em aprender Machine Learning, aqui estão alguns pass
 ## Conclusão
 
 Machine Learning é um campo fascinante e em constante evolução. Com as ferramentas e recursos disponíveis hoje, qualquer pessoa com interesse e dedicação pode começar a explorar este mundo. O importante é começar com os conceitos básicos e ir progredindo gradualmente para tópicos mais avançados.`,
-        imageUrl: "https://source.unsplash.com/random/800x600/?machine-learning",
+        imageUrl: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600&q=80",
         keywords: ["machine learning", "aprendizado de máquina", "algoritmos", "iniciantes", "tipos de machine learning"],
       },
       {
@@ -265,7 +266,7 @@ O processo básico envolve:
 ## Conclusão
 
 Deep Learning é um campo empolgante que continua a evoluir rapidamente. Embora possa parecer complexo no início, com os recursos certos e uma abordagem gradual, qualquer pessoa pode começar a explorar este mundo fascinante. O importante é começar com os conceitos básicos e ir progredindo para tópicos mais avançados à medida que sua compreensão aumenta.`,
-        imageUrl: "https://source.unsplash.com/random/800x600/?neural-network",
+        imageUrl: "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600&q=80",
         keywords: ["deep learning", "redes neurais", "aprendizado profundo", "iniciantes", "arquiteturas de redes neurais"],
       },
     ];
@@ -283,13 +284,17 @@ Deep Learning é um campo empolgante que continua a evoluir rapidamente. Embora 
 
       if (!existingArticle) {
         console.log(`Criando artigo: ${topic.title}`);
+        
+        // Buscar imagem do Unsplash usando nossa função getRandomImage
+        const imageUrl = await getRandomImage(topic.title);
+
         // Criar o artigo
         const article = await prisma.article.create({
           data: {
             title: topic.title,
             content: topic.content,
             description: topic.description,
-            imageUrl: topic.imageUrl,
+            imageUrl: imageUrl,
             slug: slugify(topic.title),
             published: true,
             categoryId: category.id,

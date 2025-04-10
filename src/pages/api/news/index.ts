@@ -6,35 +6,33 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method not allowed" });
+    return res.status(405).json({ message: "Método não permitido" });
   }
 
   try {
-    // Busca os artigos com suas relações
+    // Verificar se é uma requisição do painel de administração
+    const isAdmin = req.headers["x-admin-request"] === "true";
+    
+    // Buscar artigos
     const articles = await prisma.article.findMany({
+      where: {
+        // Se não for admin, mostrar apenas artigos publicados
+        ...(isAdmin ? {} : { published: true }),
+      },
       include: {
         author: true,
         category: true,
-        tags: true
       },
       orderBy: {
-        date: "desc"
-      }
+        date: "desc",
+      },
     });
-    
-    // Log apenas do número de artigos encontrados
-    console.log(`Artigos encontrados: ${articles.length}`);
-    
+
     return res.status(200).json(articles);
   } catch (error) {
-    // Log de erro mais conciso
-    console.error("Erro ao buscar artigos:", error instanceof Error ? error.message : "Erro desconhecido");
-    return res.status(500).json({ 
-      message: "Internal server error", 
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
+    console.error("Erro ao buscar artigos:", error);
+    return res.status(500).json({ message: "Erro interno do servidor" });
   } finally {
-    // Desconecta do banco de dados
     await prisma.$disconnect();
   }
 } 

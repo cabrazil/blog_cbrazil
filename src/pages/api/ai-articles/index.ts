@@ -2,11 +2,16 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { OpenAI } from "openai";
 import { slugify } from "@/utils/slugify";
+import { getRandomImage } from "@/config/unsplash";
 
 // Inicializar o cliente OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// URLs das imagens padrão
+const DEFAULT_ARTICLE_IMAGE = "/images/default-article.svg";
+const DEFAULT_AUTHOR_IMAGE = "/images/default-avatar.svg";
 
 export default async function handler(
   req: NextApiRequest,
@@ -67,7 +72,7 @@ export default async function handler(
         data: {
           name: "Assistente IA",
           role: "Especialista em IA",
-          imageUrl: "https://ui-avatars.com/api/?name=Assistente+IA&background=0D8ABC&color=fff",
+          imageUrl: DEFAULT_AUTHOR_IMAGE,
           bio: "Assistente especializado em Inteligência Artificial, criado para gerar conteúdo educativo sobre IA.",
           isAi: true,
           aiModel: "gpt-4",
@@ -152,9 +157,9 @@ export default async function handler(
       const imageDescription = imageResponse.choices[0]?.message?.content?.trim() || "Imagem representativa de IA";
       console.log("API: Descrição da imagem gerada:", imageDescription);
       
-      // URL da imagem (usando Unsplash como exemplo)
-      const imageUrl = `https://source.unsplash.com/random/800x600/?${encodeURIComponent(imageDescription)}`;
-      console.log("API: URL da imagem gerada:", imageUrl);
+      // Buscar imagem do Unsplash usando nossa função getRandomImage
+      const imageUrl = await getRandomImage(imageDescription);
+      console.log("API: URL da imagem final:", imageUrl);
 
       // Criar o artigo no banco de dados
       console.log("API: Criando artigo no banco de dados...");

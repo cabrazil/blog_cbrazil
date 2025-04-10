@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { categories } from '../src/utils/dataCategories';
 import { aiPrompts } from '../src/utils/aiPrompts';
+import { getRandomImage } from '../src/config/unsplash';
 
 const prisma = new PrismaClient();
 
@@ -201,9 +202,11 @@ async function main() {
     });
     
     if (machineLearningTag && deepLearningTag && aiCategory && aiAuthor) {
+      const imageUrl = await getRandomImage('artificial intelligence technology');
+      
       const article = await prisma.article.create({
         data: {
-          title: 'Introdução ao Machine Learning e Deep Learning',
+          title: 'Como a IA está Transformando o Desenvolvimento de Software',
           content: `# Introdução ao Machine Learning e Deep Learning
 
 O Machine Learning e o Deep Learning são duas áreas fundamentais da Inteligência Artificial que estão transformando a forma como interagimos com a tecnologia e como as empresas tomam decisões.
@@ -262,15 +265,15 @@ Machine Learning e Deep Learning continuarão a evoluir e transformar diversos s
 
 À medida que essas tecnologias se tornam mais acessíveis e poderosas, é importante considerar não apenas suas capacidades, mas também suas implicações éticas e sociais.`,
           description: 'Uma introdução abrangente aos conceitos de Machine Learning e Deep Learning, suas aplicações práticas e tendências futuras.',
-      imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
+          imageUrl: imageUrl,
           categoryId: aiCategory.id,
           authorId: aiAuthor.id,
           slug: 'introducao-ao-machine-learning-e-deep-learning',
-      published: true,
+          published: true,
           keywords: ['Machine Learning', 'Deep Learning', 'Inteligência Artificial', 'Redes Neurais', 'Aprendizado de Máquina'],
           aiGenerated: false
-    },
-  });
+        },
+      });
 
       console.log(`Artigo criado: ${article.title} (ID: ${article.id})`);
       

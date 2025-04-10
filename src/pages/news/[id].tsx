@@ -15,6 +15,21 @@ export default function NewsDetail() {
   const [newComment, setNewComment] = useState("");
   const [showCommentForm, setShowCommentForm] = useState(false);
 
+  // Função para processar o conteúdo HTML
+  const processContent = (content: string) => {
+    // Se o conteúdo estiver vazio, retorna uma string vazia
+    if (!content) return '';
+    
+    // Verifica se o conteúdo já é HTML
+    if (content.includes('<') && content.includes('>')) {
+      return content;
+    }
+    
+    // Se não for HTML, converte para HTML
+    // Substitui quebras de linha por <br>
+    return content.replace(/\n/g, '<br>');
+  };
+
   useEffect(() => {
     if (!id) return;
 
@@ -28,6 +43,7 @@ export default function NewsDetail() {
         }
 
         const data = await response.json();
+        console.log('Conteúdo recebido na página:', data.content);
         setArticle(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro ao carregar o artigo");
@@ -167,17 +183,19 @@ export default function NewsDetail() {
                 src={article.imageUrl}
                 alt={article.title}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                 className="object-cover rounded-lg"
               />
             </div>
           )}
 
           <div className="prose prose-lg max-w-none">
-            {article.content.split("\n\n").map((paragraph, index) => (
-              <p key={index} className="mb-6 text-gray-700 leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+            <div 
+              className="article-content"
+              dangerouslySetInnerHTML={{ 
+                __html: processContent(article.content) 
+              }} 
+            />
           </div>
 
           <section className="mt-12 pt-8 border-t">
@@ -199,19 +217,19 @@ export default function NewsDetail() {
                   className="w-full p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={4}
                 />
-                <div className="mt-4 flex space-x-4">
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Enviar
-                  </button>
+                <div className="flex justify-end mt-2">
                   <button
                     type="button"
                     onClick={() => setShowCommentForm(false)}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    className="mr-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Enviar
                   </button>
                 </div>
               </form>
@@ -245,6 +263,12 @@ export default function NewsDetail() {
                 ← Voltar para Home
               </Link>
               <div className="flex items-center space-x-4">
+                <Link 
+                  href={`/admin/edit/${id}`} 
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Editar Artigo
+                </Link>
                 <button className="text-sm text-gray-500 hover:text-gray-900">
                   Compartilhar
                 </button>

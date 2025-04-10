@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text { font-family: Arial, sans-serif; font-weight: bold; }
+    .primary { fill: #3B82F6; }
+    .secondary { fill: #1E40AF; }
+  </style>
+  <text x="10" y="35" class="text primary" font-size="24">Sky</text>
+  <text x="70" y="35" class="text secondary" font-size="24">Blog</text>
+</svg> 
