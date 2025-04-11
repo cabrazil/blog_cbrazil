@@ -24,7 +24,20 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-    font-family: 'Roboto', sans-serif;
+  font-family: Georgia, serif;
+}
+
+/* Estilos para o navbar */
+nav a {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Estilos para outros elementos de texto */
+p, span, div, li, a, button, input, textarea, select, label {
+  font-family: Georgia, serif;
 }
 
 @layer utilities {

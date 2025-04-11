@@ -163,7 +163,7 @@ export default function NewsDetail() {
               <span>•</span>
               <time dateTime={article.datetime}>{article.date}</time>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-6">{article.title}</h1>
+            <h1 className="article-title">{article.title}</h1>
             <div className="flex items-center space-x-4">
               <img
                 src={article.author.imageUrl}

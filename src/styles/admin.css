@@ -1,0 +1,53 @@
+/* Estilos para a área administrativa */
+.admin-title {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Estilos para o navbar na área administrativa */
+header nav a {
+  font-family: Georgia, serif !important;
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px;
+}
+
+/* Estilos para formulários */
+.admin-form label {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.admin-form button {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-form button:hover {
+  background-color: #004499;
+} 

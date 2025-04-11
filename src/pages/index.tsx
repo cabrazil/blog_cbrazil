@@ -291,10 +291,10 @@ export default function Home() {
                           <span>•</span>
                           <time dateTime={article.datetime}>{article.date}</time>
                         </div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        <h2 className="home-article-title">
                           {article.title}
                         </h2>
-                        <p className="text-gray-600 line-clamp-2 mb-4">
+                        <p className="home-article-description line-clamp-2 mb-4">
                           {article.description}
                         </p>
                         <div className="flex items-center space-x-2 text-sm text-gray-500">

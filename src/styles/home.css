@@ -1,0 +1,24 @@
+/* Estilos para a página inicial */
+.home-article-title {
+  font-family: Georgia, serif !important;
+  font-size: 19px !important;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.home-article-description {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #666;
+}
+
+/* Estilos para o navbar na página inicial */
+header nav a {
+  font-family: Georgia, serif !important;
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px;
+} 
