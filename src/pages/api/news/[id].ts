@@ -42,10 +42,12 @@ export default async function handler(
   // PUT - Atualizar artigo
   else if (req.method === "PUT") {
     try {
-      const { title, content, description, imageUrl, categoryId, published } = req.body;
+      const { title, description, content, imageUrl, categoryId, published } = req.body;
 
-      // Log para verificar o conteúdo recebido
-      console.log('Conteúdo recebido na API:', content);
+      // Validação dos campos obrigatórios
+      if (!title || !description || !content) {
+        return res.status(400).json({ message: 'Campos obrigatórios não preenchidos' });
+      }
 
       // Verificar se o artigo existe
       const existingArticle = await prisma.article.findUnique({
@@ -60,12 +62,12 @@ export default async function handler(
       const updatedArticle = await prisma.article.update({
         where: { id: articleId },
         data: {
-          title: title || existingArticle.title,
-          content: content || existingArticle.content,
-          description: description || existingArticle.description,
-          imageUrl: imageUrl || existingArticle.imageUrl,
-          categoryId: categoryId || existingArticle.categoryId,
-          published: published !== undefined ? published : existingArticle.published,
+          title,
+          description,
+          content,
+          imageUrl,
+          categoryId,
+          published,
           updatedAt: new Date(),
         },
         include: {
@@ -73,9 +75,6 @@ export default async function handler(
           category: true,
         },
       });
-
-      // Log para verificar o conteúdo salvo
-      console.log('Conteúdo salvo no banco:', updatedArticle.content);
 
       return res.status(200).json(updatedArticle);
     } catch (error) {

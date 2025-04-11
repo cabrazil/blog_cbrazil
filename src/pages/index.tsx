@@ -3,6 +3,8 @@ import { News } from "@/interfaces/news";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function Home() {
   const [news, setNews] = useState<News[]>([]);
@@ -289,7 +291,11 @@ export default function Home() {
                         <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
                           <span>{article.category?.title || 'Sem categoria'}</span>
                           <span>•</span>
-                          <time dateTime={article.datetime}>{article.date}</time>
+                          <time dateTime={article.datetime}>
+                            {format(new Date(article.date), "d 'de' MMMM 'de' yyyy", {
+                              locale: ptBR,
+                            })}
+                          </time>
                         </div>
                         <h2 className="home-article-title">
                           {article.title}

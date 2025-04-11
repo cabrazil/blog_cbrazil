@@ -81,9 +81,11 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
     setSuccess(null);
 
     try {
-      // Log para verificar o conteúdo antes de enviar
-      console.log('Conteúdo a ser enviado:', content);
-      
+      // Verificar se a URL da imagem é válida
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        throw new Error('A URL da imagem deve começar com http:// ou https://');
+      }
+
       const response = await fetch(`/api/news/${id}`, {
         method: 'PUT',
         headers: {
@@ -91,8 +93,8 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
         },
         body: JSON.stringify({
           title,
-          content,
           description,
+          content,
           imageUrl,
           categoryId,
           published,
@@ -101,18 +103,15 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao atualizar artigo');
+        throw new Error(`Falha ao atualizar o artigo: ${errorData.message || 'Erro desconhecido'}`);
       }
 
+      const data = await response.json();
       setSuccess('Artigo atualizado com sucesso!');
-      
-      // Redirecionar para o artigo após 2 segundos
-      setTimeout(() => {
-        router.push(`/news/${id}`);
-      }, 2000);
+      router.push('/admin');
     } catch (err) {
       console.error('Erro detalhado:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar artigo');
+      setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar o artigo');
     } finally {
       setLoading(false);
     }

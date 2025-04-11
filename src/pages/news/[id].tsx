@@ -4,11 +4,18 @@ import { News } from "@/interfaces/news";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { Article, Category } from '@prisma/client';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+type ArticleWithCategory = Article & {
+  category: Category;
+};
 
 export default function NewsDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [article, setArticle] = useState<News | null>(null);
+  const [article, setArticle] = useState<ArticleWithCategory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -31,29 +38,25 @@ export default function NewsDetail() {
   };
 
   useEffect(() => {
-    if (!id) return;
-
-    const fetchArticle = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/news/${id}`);
-        
-        if (!response.ok) {
-          throw new Error("Erro ao carregar o artigo");
-        }
-
-        const data = await response.json();
-        console.log('Conteúdo recebido na página:', data.content);
-        setArticle(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Erro ao carregar o artigo");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticle();
+    if (id) {
+      fetchArticle();
+    }
   }, [id]);
+
+  const fetchArticle = async () => {
+    try {
+      const response = await fetch(`/api/news/${id}`);
+      if (!response.ok) {
+        throw new Error('Artigo não encontrado');
+      }
+      const data = await response.json();
+      setArticle(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar artigo');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -105,45 +108,11 @@ export default function NewsDetail() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="container mx-auto px-4 py-8">Carregando...</div>;
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-red-50 border-l-4 border-red-400 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!article) {
-    return null;
+  if (error || !article) {
+    return <div className="container mx-auto px-4 py-8">Erro: {error}</div>;
   }
 
   return (
@@ -153,130 +122,112 @@ export default function NewsDetail() {
         <meta name="description" content={article.description} />
       </Head>
 
-      <article className="min-h-screen bg-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <header className="mb-12">
-            <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-              <Link href="/" className="hover:text-gray-900">Home</Link>
-              <span>•</span>
-              <span>{article.category.title}</span>
-              <span>•</span>
-              <time dateTime={article.datetime}>{article.date}</time>
-            </div>
-            <h1 className="article-title">{article.title}</h1>
-            <div className="flex items-center space-x-4">
-              <img
-                src={article.author.imageUrl}
-                alt={article.author.name}
-                className="h-10 w-10 rounded-full"
-              />
-              <div>
-                <p className="text-sm font-medium text-gray-900">{article.author.name}</p>
-                <p className="text-sm text-gray-500">{article.author.role}</p>
-              </div>
-            </div>
-          </header>
-
+      <div className="container mx-auto px-4 py-8">
+        <article className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+          <div className="flex items-center text-gray-600 mb-8">
+            <span>{article.category.title}</span>
+            <span className="mx-2">•</span>
+            <span>
+              {format(new Date(article.createdAt), "d 'de' MMMM 'de' yyyy", {
+                locale: ptBR,
+              })}
+            </span>
+          </div>
           {article.imageUrl && (
-            <div className="relative w-full h-[400px] mb-8">
+            <div className="relative w-full h-96 mb-8">
               <Image
                 src={article.imageUrl}
                 alt={article.title}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                 className="object-cover rounded-lg"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
               />
             </div>
           )}
-
-          <div className="prose prose-lg max-w-none">
-            <div 
-              className="article-content"
-              dangerouslySetInnerHTML={{ 
-                __html: processContent(article.content) 
-              }} 
-            />
+          <div className="prose prose-lg max-w-none article-content">
+            <div dangerouslySetInnerHTML={{ __html: article.content }} />
           </div>
+        </article>
+      </div>
 
-          <section className="mt-12 pt-8 border-t">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Comentários</h2>
-            
-            {!showCommentForm ? (
+      <section className="mt-12 pt-8 border-t">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Comentários</h2>
+        
+        {!showCommentForm ? (
+          <button
+            onClick={() => setShowCommentForm(true)}
+            className="mb-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Adicionar Comentário
+          </button>
+        ) : (
+          <form onSubmit={handleSubmitComment} className="mb-8">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Digite seu comentário..."
+              className="w-full p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={4}
+            />
+            <div className="flex justify-end mt-2">
               <button
-                onClick={() => setShowCommentForm(true)}
-                className="mb-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                type="button"
+                onClick={() => setShowCommentForm(false)}
+                className="mr-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
               >
-                Adicionar Comentário
+                Cancelar
               </button>
-            ) : (
-              <form onSubmit={handleSubmitComment} className="mb-8">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Digite seu comentário..."
-                  className="w-full p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={4}
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Enviar
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="space-y-6">
+          {comments.map((comment) => (
+            <div key={comment.id} className="bg-gray-50 p-6 rounded-lg">
+              <div className="flex items-center space-x-4 mb-4">
+                <img
+                  src={comment.author.imageUrl}
+                  alt={comment.author.name}
+                  className="h-10 w-10 rounded-full"
                 />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowCommentForm(false)}
-                    className="mr-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Enviar
-                  </button>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{comment.author.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(comment.createdAt).toLocaleDateString('pt-BR')}
+                  </p>
                 </div>
-              </form>
-            )}
-
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <div key={comment.id} className="bg-gray-50 p-6 rounded-lg">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <img
-                      src={comment.author.imageUrl}
-                      alt={comment.author.name}
-                      className="h-10 w-10 rounded-full"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{comment.author.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(comment.createdAt).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700">{comment.content}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <footer className="mt-12 pt-8 border-t">
-            <div className="flex items-center justify-between">
-              <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
-                ← Voltar para Home
-              </Link>
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href={`/admin/edit/${id}`} 
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Editar Artigo
-                </Link>
-                <button className="text-sm text-gray-500 hover:text-gray-900">
-                  Compartilhar
-                </button>
               </div>
+              <p className="text-gray-700">{comment.content}</p>
             </div>
-          </footer>
+          ))}
         </div>
-      </article>
+      </section>
+
+      <footer className="mt-12 pt-8 border-t">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
+            ← Voltar para Home
+          </Link>
+          <div className="flex items-center space-x-4">
+            <Link 
+              href={`/admin/edit/${id}`} 
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Editar Artigo
+            </Link>
+            <button className="text-sm text-gray-500 hover:text-gray-900">
+              Compartilhar
+            </button>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
