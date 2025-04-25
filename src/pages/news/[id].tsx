@@ -7,6 +7,8 @@ import Image from "next/image";
 import { Article, Category } from '@prisma/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type ArticleWithCategory = Article & {
   category: Category;
@@ -21,21 +23,6 @@ export default function NewsDetail() {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [showCommentForm, setShowCommentForm] = useState(false);
-
-  // Função para processar o conteúdo HTML
-  const processContent = (content: string) => {
-    // Se o conteúdo estiver vazio, retorna uma string vazia
-    if (!content) return '';
-    
-    // Verifica se o conteúdo já é HTML
-    if (content.includes('<') && content.includes('>')) {
-      return content;
-    }
-    
-    // Se não for HTML, converte para HTML
-    // Substitui quebras de linha por <br>
-    return content.replace(/\n/g, '<br>');
-  };
 
   useEffect(() => {
     if (id) {
@@ -146,88 +133,110 @@ export default function NewsDetail() {
             </div>
           )}
           <div className="prose prose-lg max-w-none article-content">
-            <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-3xl font-bold mt-8 mb-4" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-6 mb-3" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-xl font-bold mt-4 mb-2" {...props} />,
+                p: ({node, ...props}) => <p className="mb-4 leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4" {...props} />,
+                li: ({node, ...props}) => <li className="mb-2" {...props} />,
+                blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4" {...props} />,
+                code: ({node, inline, ...props}) => 
+                  inline ? (
+                    <code className="bg-gray-100 px-1 py-0.5 rounded" {...props} />
+                  ) : (
+                    <code className="block bg-gray-100 p-4 rounded my-4 overflow-x-auto" {...props} />
+                  ),
+                a: ({node, ...props}) => <a className="text-blue-600 hover:text-blue-800 underline" {...props} />,
+                img: ({node, ...props}) => <img className="my-4 rounded-lg" {...props} />,
+              }}
+            >
+              {article.content}
+            </ReactMarkdown>
           </div>
         </article>
-      </div>
 
-      <section className="mt-12 pt-8 border-t">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Comentários</h2>
-        
-        {!showCommentForm ? (
-          <button
-            onClick={() => setShowCommentForm(true)}
-            className="mb-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Adicionar Comentário
-          </button>
-        ) : (
-          <form onSubmit={handleSubmitComment} className="mb-8">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Digite seu comentário..."
-              className="w-full p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={4}
-            />
-            <div className="flex justify-end mt-2">
-              <button
-                type="button"
-                onClick={() => setShowCommentForm(false)}
-                className="mr-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Enviar
-              </button>
-            </div>
-          </form>
-        )}
-
-        <div className="space-y-6">
-          {comments.map((comment) => (
-            <div key={comment.id} className="bg-gray-50 p-6 rounded-lg">
-              <div className="flex items-center space-x-4 mb-4">
-                <img
-                  src={comment.author.imageUrl}
-                  alt={comment.author.name}
-                  className="h-10 w-10 rounded-full"
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{comment.author.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {new Date(comment.createdAt).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
+        <section className="max-w-4xl mx-auto mt-12">
+          <h2 className="text-2xl font-bold mb-6">Comentários</h2>
+          
+          {showCommentForm ? (
+            <form onSubmit={handleSubmitComment} className="mb-8">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Escreva seu comentário..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={4}
+              />
+              <div className="mt-4 flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCommentForm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Enviar
+                </button>
               </div>
-              <p className="text-gray-700">{comment.content}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="mt-12 pt-8 border-t">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
-            ← Voltar para Home
-          </Link>
-          <div className="flex items-center space-x-4">
-            <Link 
-              href={`/admin/edit/${id}`} 
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            </form>
+          ) : (
+            <button
+              onClick={() => setShowCommentForm(true)}
+              className="mb-8 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Editar Artigo
-            </Link>
-            <button className="text-sm text-gray-500 hover:text-gray-900">
-              Compartilhar
+              Adicionar Comentário
             </button>
+          )}
+
+          <div className="space-y-6">
+            {comments.map((comment) => (
+              <div key={comment.id} className="bg-gray-50 p-6 rounded-lg">
+                <div className="flex items-center space-x-4 mb-4">
+                  <img
+                    src={comment.author.imageUrl}
+                    alt={comment.author.name}
+                    className="h-10 w-10 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{comment.author.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(comment.createdAt).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-700">{comment.content}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </footer>
+        </section>
+
+        <footer className="mt-12 pt-8 border-t">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
+              ← Voltar para Home
+            </Link>
+            <div className="flex items-center space-x-4">
+              <Link 
+                href={`/admin/edit/${id}`} 
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Editar Artigo
+              </Link>
+              <button className="text-sm text-gray-500 hover:text-gray-900">
+                Compartilhar
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
     </>
   );
 }

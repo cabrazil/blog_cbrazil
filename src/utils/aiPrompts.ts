@@ -5,7 +5,12 @@ export const aiPrompts = [
     O artigo deve ter uma introdução clara, desenvolvimento com exemplos práticos, e uma conclusão que resuma os principais pontos.
     Inclua uma breve explicação do conceito, suas aplicações atuais, desafios e tendências futuras.
     Use linguagem acessível para um público com conhecimento técnico intermediário.
-    O artigo deve ter entre 800 e 1200 palavras.`,
+    O artigo deve ter entre 800 e 1200 palavras.
+
+    Instruções específicas:
+    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
+    - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
+    - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
     metadata: {
       category: "Inteligência Artificial",
@@ -19,7 +24,12 @@ export const aiPrompts = [
     O artigo deve incluir uma introdução ao conceito, exemplos de código quando relevante, boas práticas e dicas de implementação.
     Explique os benefícios, desafios comuns e soluções para problemas frequentes.
     Inclua referências a frameworks ou bibliotecas populares relacionadas ao tópico.
-    O artigo deve ter entre 800 e 1200 palavras e ser adequado para desenvolvedores de nível intermediário.`,
+    O artigo deve ter entre 800 e 1200 palavras e ser adequado para desenvolvedores de nível intermediário.
+
+    Instruções específicas:
+    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
+    - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
+    - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
     metadata: {
       category: "Desenvolvimento Web",
@@ -33,7 +43,12 @@ export const aiPrompts = [
     O artigo deve explicar o conceito, sua importância no contexto atual, metodologias e ferramentas utilizadas.
     Inclua exemplos práticos de aplicação e casos de uso reais.
     Discuta os desafios comuns e as melhores práticas na área.
-    O artigo deve ter entre 800 e 1200 palavras e ser adequado para profissionais de dados e analistas.`,
+    O artigo deve ter entre 800 e 1200 palavras e ser adequado para profissionais de dados e analistas.
+
+    Instruções específicas:
+    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
+    - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
+    - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
     metadata: {
       category: "Ciência de Dados",
@@ -47,7 +62,12 @@ export const aiPrompts = [
     O artigo deve apresentar uma visão geral do conceito, seu estado atual de desenvolvimento e potencial impacto futuro.
     Discuta aplicações práticas, desafios de implementação e tendências de mercado.
     Inclua exemplos de empresas ou projetos que estão utilizando essa tecnologia.
-    O artigo deve ter entre 800 e 1200 palavras e ser acessível para um público com interesse em tecnologia.`,
+    O artigo deve ter entre 800 e 1200 palavras e ser acessível para um público com interesse em tecnologia.
+
+    Instruções específicas:
+    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
+    - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
+    - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
     metadata: {
       category: "Tecnologias Emergentes",

@@ -102,13 +102,13 @@ export default async function handler(
       // Gerar título
       console.log("API: Gerando título...");
       const titlePrompt = prompt 
-        ? `${prompt.content}\n\nGere um título para um artigo sobre: ${topic}`
-        : `Gere um título para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ser atraente e informativo.`;
+        ? `${prompt.content}\n\nGere um título conciso e impactante para um artigo sobre: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para o público-alvo e não deve conter a palavra "Título".`
+        : `Gere um título conciso e impactante para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para iniciantes e não deve conter a palavra "Título".`;
       
       const titleResponse = await openai.chat.completions.create({
         model: "gpt-4",
         messages: [{ role: "user", content: titlePrompt }],
-        max_tokens: 100,
+        max_tokens: 50,
       });
       
       const title = titleResponse.choices[0]?.message?.content?.trim() || `Artigo sobre ${topic}`;
@@ -117,13 +117,13 @@ export default async function handler(
       // Gerar descrição
       console.log("API: Gerando descrição...");
       const descriptionPrompt = prompt 
-        ? `${prompt.content}\n\nGere uma breve descrição para um artigo sobre: ${topic}`
-        : `Gere uma breve descrição (máximo 150 caracteres) para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}.`;
+        ? `${prompt.content}\n\nGere uma descrição curta e direta para um artigo sobre: ${topic}. A descrição deve ter no máximo 100 caracteres e ser impactante.`
+        : `Gere uma descrição curta e direta (máximo 100 caracteres) para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. A descrição deve ser impactante.`;
       
       const descriptionResponse = await openai.chat.completions.create({
         model: "gpt-4",
         messages: [{ role: "user", content: descriptionPrompt }],
-        max_tokens: 150,
+        max_tokens: 50,
       });
       
       const description = descriptionResponse.choices[0]?.message?.content?.trim() || `Descrição do artigo sobre ${topic}`;
@@ -146,7 +146,16 @@ export default async function handler(
 
       // Gerar descrição da imagem
       console.log("API: Gerando descrição da imagem...");
-      const imagePrompt = `Gere uma descrição curta para uma imagem que represente o tema: ${topic} em um artigo sobre Inteligência Artificial para iniciantes.`;
+      const imagePrompt = `Gere uma descrição curta e específica para uma imagem que represente visualmente o tema: ${topic} em um artigo sobre Inteligência Artificial. 
+      A descrição deve ser focada em elementos visuais relacionados a IA, como:
+      - Circuitos neurais ou redes neurais
+      - Robôs ou assistentes virtuais
+      - Código ou algoritmos
+      - Interfaces de usuário modernas
+      - Visualizações de dados
+      - Elementos futuristas ou tecnológicos
+      
+      Evite descrições genéricas ou que não tenham relação direta com IA.`;
       
       const imageResponse = await openai.chat.completions.create({
         model: "gpt-4",

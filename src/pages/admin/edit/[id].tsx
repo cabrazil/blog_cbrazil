@@ -46,6 +46,27 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const extractUnsplashImageUrl = (url: string) => {
+    // Se a URL já for uma URL direta de imagem, retorna ela mesma
+    if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+      return url;
+    }
+
+    // Extrai o ID da imagem da URL do Unsplash
+    // Suporta URLs em português e inglês
+    const match = url.match(/(?:fotografias|photos)\/([^\/\?]+)/);
+    if (match) {
+      const imageId = match[1];
+      // Remove caracteres especiais e acentos do ID
+      const cleanImageId = imageId.replace(/[^a-zA-Z0-9-]/g, '');
+      // Constrói a URL direta da imagem com parâmetros de qualidade
+      return `https://images.unsplash.com/photo-${cleanImageId}?auto=format&fit=crop&w=1200&h=800&q=80`;
+    }
+
+    // Se não conseguir extrair o ID, retorna a URL original
+    return url;
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
     
@@ -74,6 +95,37 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
     }
   };
 
+  const validateImageUrl = async (url: string) => {
+    try {
+      // Se a URL for do Unsplash, tenta extrair o ID e construir a URL direta
+      if (url.includes('unsplash.com')) {
+        const directUrl = extractUnsplashImageUrl(url);
+        const response = await fetch(directUrl, { method: 'HEAD' });
+        return response.ok;
+      }
+
+      // Para outras URLs, faz a validação normal
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok;
+    } catch (error) {
+      console.error('Erro ao validar URL da imagem:', error);
+      return false;
+    }
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    // Se for uma URL do Unsplash, extrai a URL direta da imagem
+    if (url.includes('unsplash.com')) {
+      const directUrl = extractUnsplashImageUrl(url);
+      console.log('URL original:', url);
+      console.log('URL direta:', directUrl);
+      setImageUrl(directUrl);
+    } else {
+      setImageUrl(url);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -81,9 +133,12 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
     setSuccess(null);
 
     try {
-      // Verificar se a URL da imagem é válida
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        throw new Error('A URL da imagem deve começar com http:// ou https://');
+      // Validar URL da imagem
+      if (imageUrl) {
+        const isValid = await validateImageUrl(imageUrl);
+        if (!isValid) {
+          throw new Error('A URL da imagem não é acessível. Por favor, verifique a URL e tente novamente.');
+        }
       }
 
       const response = await fetch(`/api/news/${id}`, {
@@ -103,15 +158,13 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Falha ao atualizar o artigo: ${errorData.message || 'Erro desconhecido'}`);
+        throw new Error(errorData.message || 'Erro ao atualizar o artigo');
       }
 
-      const data = await response.json();
       setSuccess('Artigo atualizado com sucesso!');
       router.push('/admin');
     } catch (err) {
-      console.error('Erro detalhado:', err);
-      setError(err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar o artigo');
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar o artigo');
     } finally {
       setLoading(false);
     }
@@ -210,7 +263,7 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
                       <input
                         type="text"
                         value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
+                        onChange={handleImageUrlChange}
                         placeholder="Ou cole a URL da imagem aqui"
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       />
