@@ -173,7 +173,7 @@ export default function Home() {
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <Image 
-                  src="/images/cbrazil_v6.png" 
+                  src="/images/cbrazil_logo.png" 
                   alt="cbrazil.com Logo" 
                   width={220} 
                   height={60} 
@@ -231,7 +231,7 @@ export default function Home() {
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <Image 
-                  src="/images/cbrazil_v6.png" 
+                  src="/images/cbrazil_logo.png" 
                   alt="cbrazil.com Logo" 
                   width={220} 
                   height={60} 

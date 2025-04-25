@@ -36,9 +36,6 @@ next-env.d.ts
 # Arquivos de ambiente
 .env
 .env.local
-.env.*
-.env.local.*
-.env.*.local
 .env.development
 .env.test
 .env.production

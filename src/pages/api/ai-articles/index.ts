@@ -102,8 +102,8 @@ export default async function handler(
       // Gerar título
       console.log("API: Gerando título...");
       const titlePrompt = prompt 
-        ? `${prompt.content}\n\nGere um título conciso e impactante para um artigo sobre: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para o público-alvo e não deve conter a palavra "Título".`
-        : `Gere um título conciso e impactante para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para iniciantes e não deve conter a palavra "Título".`;
+        ? `${prompt.content}\n\nGere um título conciso e impactante para um artigo sobre: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para o público-alvo e NÃO deve começar com a palavra "Título" ou conter essa palavra em nenhum lugar do texto.`
+        : `Gere um título conciso e impactante para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ter no máximo 10 palavras, ser atraente para iniciantes e NÃO deve começar com a palavra "Título" ou conter essa palavra em nenhum lugar do texto.`;
       
       const titleResponse = await openai.chat.completions.create({
         model: "gpt-4",
