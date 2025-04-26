@@ -7,31 +7,35 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Header from "../../app/components/Header";
 import Footer from "../../app/components/Footer";
+import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
-    const checkApi = async () => {
+    const fetchArticles = async () => {
       try {
-        const response = await fetch("/api/news");
+        setLoading(true);
+        const response = await fetch("/api/news?page=1&limit=6");
         if (!response.ok) {
           throw new Error("Erro ao carregar artigos");
         }
         const data = await response.json();
-        console.log("Dados recebidos:", data);
-        setNews(data);
-        setLoading(false);
+        setNews(data.articles);
+        setTotalArticles(data.pagination.total);
       } catch (err) {
-        console.error("Erro:", err);
-        setError(err instanceof Error ? err.message : "Erro ao carregar artigos");
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
+      } finally {
         setLoading(false);
       }
     };
 
-    checkApi();
+    fetchArticles();
   }, []);
 
   // Função para verificar se uma URL é válida
@@ -162,7 +166,7 @@ export default function Home() {
           <HeroImage />
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8">Artigos em Destaque</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Artigos em Destaque</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {news.slice(0, 6).map((article) => {
                 // Verificar se a URL da imagem é válida
@@ -210,6 +214,18 @@ export default function Home() {
                 );
               })}
             </div>
+
+            {totalArticles > 6 && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  onClick={() => router.push("/artigos")}
+                >
+                  Ver Todos os Artigos
+                </Button>
+              </div>
+            )}
           </div>
         </main>
 
