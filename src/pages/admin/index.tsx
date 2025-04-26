@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import { AiPrompt, Article } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
+import { Article as ArticleType } from "@/types/article";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [prompts, setPrompts] = useState<AiPrompt[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<ArticleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,9 +35,28 @@ export default function AdminDashboard() {
           throw new Error("Erro ao carregar artigos");
         }
         const articlesData = await articlesResponse.json();
-        setArticles(articlesData);
+        
+        // Garantir que articles seja sempre um array
+        const validArticles = Array.isArray(articlesData.articles) 
+          ? articlesData.articles.map((article: any) => ({
+              id: article.id || '',
+              title: article.title || '',
+              slug: article.slug || '',
+              createdAt: article.createdAt || new Date().toISOString(),
+              updatedAt: article.updatedAt || new Date().toISOString(),
+              description: article.description || '',
+              imageUrl: article.imageUrl || '',
+              parentId: article.parentId || null,
+              aiKeywords: article.aiKeywords || [],
+              aiPrompt: article.aiPrompt || '',
+              published: article.published || false
+            }))
+          : [];
+
+        setArticles(validArticles);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Erro ao carregar dados");
+        console.error("Erro ao carregar artigos:", err);
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
       } finally {
         setLoading(false);
       }
@@ -40,6 +64,49 @@ export default function AdminDashboard() {
 
     fetchData();
   }, []);
+
+  const handleEdit = (id: string) => {
+    router.push(`/admin/edit/${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este artigo?")) {
+      try {
+        const response = await fetch(`/api/news/${id}`, {
+          method: "DELETE",
+          headers: {
+            "x-admin-request": "true",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao excluir artigo");
+        }
+
+        // Atualizar a lista de artigos após a exclusão
+        setArticles(articles.filter((article) => article.id !== id));
+      } catch (err) {
+        console.error("Erro ao excluir artigo:", err);
+        alert("Erro ao excluir artigo. Por favor, tente novamente.");
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -76,11 +143,7 @@ export default function AdminDashboard() {
               
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Artigos Recentes</h3>
-                {loading ? (
-                  <p>Carregando artigos...</p>
-                ) : error ? (
-                  <p className="text-red-600">{error}</p>
-                ) : articles.length === 0 ? (
+                {articles.length === 0 ? (
                   <p>Nenhum artigo encontrado.</p>
                 ) : (
                   <div className="overflow-x-auto">
@@ -108,7 +171,7 @@ export default function AdminDashboard() {
                               {article.title}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(article.date).toLocaleDateString('pt-BR')}
+                              {new Date(article.createdAt).toLocaleDateString('pt-BR')}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {article.published ? (
@@ -122,18 +185,29 @@ export default function AdminDashboard() {
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <Link 
-                                href={`/admin/edit/${article.id}`}
-                                className="text-blue-600 hover:text-blue-900 mr-4"
-                              >
-                                Editar
-                              </Link>
-                              <Link 
-                                href={`/news/${article.id}`}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                Ver
-                              </Link>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => router.push(`/news/${article.id}`)}
+                                  className="text-blue-600 hover:text-blue-700"
+                                >
+                                  Ver
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleEdit(article.id)}
+                                  className="text-green-600 hover:text-green-700"
+                                >
+                                  Editar
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleDelete(article.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  Excluir
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -149,11 +223,7 @@ export default function AdminDashboard() {
               
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Prompts de IA Disponíveis</h3>
-                {loading ? (
-                  <p>Carregando prompts...</p>
-                ) : error ? (
-                  <p className="text-red-600">{error}</p>
-                ) : prompts.length === 0 ? (
+                {prompts.length === 0 ? (
                   <p>Nenhum prompt encontrado.</p>
                 ) : (
                   <div className="overflow-x-auto">

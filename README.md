@@ -5,3 +5,5 @@ Este projeto consiste no desenvolvimento de uma aplicação front-end altamente 
 Existe uma base de dados Postgres para armazenar os artigos.
 
 Foi implementado um acesso ao Unsplash para obter as imagens para os artigos.
+
+Foi criada uma área de admin para gerenciar os artigos e prompts de comando para o openai

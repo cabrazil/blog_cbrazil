@@ -133,6 +133,8 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
     setSuccess(null);
 
     try {
+      console.log('Estado atual do published:', published);
+
       // Validar URL da imagem
       if (imageUrl) {
         const isValid = await validateImageUrl(imageUrl);
@@ -160,6 +162,9 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao atualizar o artigo');
       }
+
+      const updatedArticle = await response.json();
+      console.log('Resposta da API:', updatedArticle);
 
       setSuccess('Artigo atualizado com sucesso!');
       router.push('/admin');

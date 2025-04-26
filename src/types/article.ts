@@ -9,4 +9,5 @@ export interface Article {
   parentId: string | null;
   aiKeywords: string[];
   aiPrompt: string;
+  published: boolean;
 } 

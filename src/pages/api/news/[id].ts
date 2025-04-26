@@ -44,6 +44,8 @@ export default async function handler(
     try {
       const { title, description, content, imageUrl, categoryId, published } = req.body;
 
+      console.log('Dados recebidos:', { title, description, content, imageUrl, categoryId, published });
+
       // Validação dos campos obrigatórios
       if (!title || !description || !content) {
         return res.status(400).json({ message: 'Campos obrigatórios não preenchidos' });
@@ -67,7 +69,7 @@ export default async function handler(
           content,
           imageUrl,
           categoryId,
-          published,
+          published: published || false,
           updatedAt: new Date(),
         },
         include: {
@@ -75,6 +77,8 @@ export default async function handler(
           category: true,
         },
       });
+
+      console.log('Artigo atualizado:', updatedArticle);
 
       return res.status(200).json(updatedArticle);
     } catch (error) {
