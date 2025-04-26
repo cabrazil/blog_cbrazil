@@ -104,7 +104,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          {/* <div>
+          <div>
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Newsletter
             </h3>
@@ -124,7 +124,7 @@ export default function Footer() {
                 Inscrever-se
               </button>
             </form>
-          </div> */}
+          </div>
         </div>
 
         {/* Copyright */}

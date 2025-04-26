@@ -8,8 +8,8 @@ import { Article, Category } from '@prisma/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import 'react-quill/dist/quill.snow.css';
-import Header from "../../../app/components/Header";
-import Footer from "../../../app/components/Footer";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 type ArticleWithCategory = Article & {
   category: Category;

@@ -5,8 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import Header from "../../app/components/Header";
-import Footer from "../../app/components/Footer";
+import Header from "../../src/components/Header";
+import Footer from "../../src/components/Footer";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 

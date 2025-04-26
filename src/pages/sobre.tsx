@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function Sobre() {
   return (
@@ -11,42 +13,7 @@ export default function Sobre() {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="py-8 border-b border-gray-200 bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Link href="/">
-                  <Image 
-                    src="/images/cbrazil_logo.png" 
-                    alt="cbrazil.com Logo" 
-                    width={220} 
-                    height={60} 
-                    className="mr-2"
-                    priority
-                  />
-                </Link>
-              </div>
-              <nav className="flex space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Início
-                </Link>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
-                </Link>
-                <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
-                  Sobre
-                </Link>
-                <Link href="/contato" className="text-gray-600 hover:text-gray-900">
-                  Contato
-                </Link>
-                <Link href="/admin" className="text-blue-600 hover:text-blue-800 font-medium">
-                  Admin
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
+        <Header />
 
         {/* Hero Section com Foto */}
         <div className="flex justify-center items-center py-12">
@@ -114,34 +81,7 @@ export default function Sobre() {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 py-12 mt-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-6 md:mb-0">
-                <h2 className="text-2xl font-bold text-gray-900">cbrazil.com</h2>
-                <p className="text-gray-600 mt-1">IA para Todos</p>
-              </div>
-              <div className="flex space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Início
-                </Link>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
-                </Link>
-                <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
-                  Sobre
-                </Link>
-                <Link href="/contato" className="text-gray-600 hover:text-gray-900">
-                  Contato
-                </Link>
-              </div>
-            </div>
-            <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-              © {new Date().getFullYear()} cbrazil.com. Todos os direitos reservados.
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );
