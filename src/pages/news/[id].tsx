@@ -168,6 +168,7 @@ export default function NewsDetail() {
               </div>
             )}
             <div className="prose prose-lg max-w-none article-content">
+              <p className="text-xl text-gray-700 mb-8">{article.description}</p>
               <div 
                 className="ql-editor"
                 dangerouslySetInnerHTML={{ 
