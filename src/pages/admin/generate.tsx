@@ -11,10 +11,11 @@ interface GeneratePageProps {
   prompts: AiPrompt[];
 }
 
-export default function GenerateArticle() {
+export default function GenerateArticle({ categories }: GeneratePageProps) {
   const router = useRouter();
   const [prompts, setPrompts] = useState<AiPrompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [topic, setTopic] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -42,6 +43,11 @@ export default function GenerateArticle() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedCategory) {
+      setError("Por favor, selecione uma categoria");
+      return;
+    }
+    
     setGenerating(true);
     setError(null);
     setSuccess(null);
@@ -54,6 +60,7 @@ export default function GenerateArticle() {
         },
         body: JSON.stringify({
           promptId: selectedPrompt ? parseInt(selectedPrompt) : null,
+          categoryId: parseInt(selectedCategory),
           topic,
           count: 1,
         }),
@@ -102,6 +109,29 @@ export default function GenerateArticle() {
           <div className="px-4 py-6 sm:px-0">
             <div className="bg-white shadow rounded-lg p-6">
               <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                    Categoria do Artigo
+                  </label>
+                  <select
+                    id="category"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.title}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Escolha a categoria em que o artigo será publicado.
+                  </p>
+                </div>
+
                 <div className="mb-4">
                   <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-1">
                     Prompt de IA (opcional)

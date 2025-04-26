@@ -3,39 +3,39 @@ import Image from 'next/image'
 
 export default function Header() {
   return (
-    <header className="bg-gray-900 text-white">
-      <nav className="container mx-auto px-4 py-6">
+    <header className="py-8 border-b border-gray-200 bg-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 hover:opacity-90">
-            <Image
-              src="/images/cbrazil_logo.png"
-              alt="CBrazil Blog Logo"
-              width={40}
-              height={40}
-              className="rounded-full"
+            <Image 
+              src="/images/cbrazil_logo.png" 
+              alt="cbrazil.com Logo" 
+              width={220} 
+              height={60} 
+              className="mr-2"
+              priority
             />
-            <span className="text-2xl font-bold">CBrazil Blog</span>
           </Link>
           
-          <ul className="flex space-x-6">
-            <li>
-              <Link href="/" className="hover:text-gray-300">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link href="/posts" className="hover:text-gray-300">
-                Posts
-              </Link>
-            </li>
-            <li>
-              <Link href="/about" className="hover:text-gray-300">
-                Sobre
-              </Link>
-            </li>
-          </ul>
+          <nav className="flex space-x-6">
+            <Link href="/" className="text-gray-600 hover:text-gray-900">
+              Início
+            </Link>
+            <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
+              Categorias
+            </Link>
+            <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
+              Sobre
+            </Link>
+            <Link href="/contato" className="text-gray-600 hover:text-gray-900">
+              Contato
+            </Link>
+            <Link href="/admin" className="text-blue-600 hover:text-blue-800 font-medium">
+              Admin
+            </Link>
+          </nav>
         </div>
-      </nav>
+      </div>
     </header>
   )
 } 

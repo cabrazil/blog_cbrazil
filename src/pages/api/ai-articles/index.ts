@@ -27,35 +27,32 @@ export default async function handler(
   }
 
   try {
-    const { topic, count = 1, promptId } = req.body;
-    console.log("API: Dados recebidos:", { topic, count, promptId });
+    const { topic, count = 1, promptId, categoryId } = req.body;
+    console.log("API: Dados recebidos:", { topic, count, promptId, categoryId });
 
     if (!topic) {
       console.log("API: Tópico não fornecido");
       return res.status(400).json({ message: "O tópico é obrigatório" });
     }
 
-    // Verificar se a categoria "IA para Iniciantes" existe
+    if (!categoryId) {
+      console.log("API: Categoria não fornecida");
+      return res.status(400).json({ message: "A categoria é obrigatória" });
+    }
+
+    // Buscar a categoria selecionada
     console.log("API: Verificando categoria...");
-    let category = await prisma.category.findFirst({
+    const category = await prisma.category.findUnique({
       where: {
-        title: "IA para Iniciantes",
+        id: categoryId,
       },
     });
-    console.log("API: Categoria encontrada:", category);
 
     if (!category) {
-      console.log("API: Criando nova categoria...");
-      category = await prisma.category.create({
-        data: {
-          title: "IA para Iniciantes",
-          slug: "ia-para-iniciantes",
-          description: "Artigos sobre Inteligência Artificial para iniciantes",
-          aiKeywords: ["ia", "inteligência artificial", "iniciantes", "básico", "fundamentos"],
-        },
-      });
-      console.log("API: Nova categoria criada:", category);
+      console.log("API: Categoria não encontrada");
+      return res.status(404).json({ message: "Categoria não encontrada" });
     }
+    console.log("API: Categoria encontrada:", category);
 
     // Verificar se o autor "Assistente IA" existe
     console.log("API: Verificando autor...");
@@ -174,18 +171,19 @@ export default async function handler(
       console.log("API: Criando artigo no banco de dados...");
       const article = await prisma.article.create({
         data: {
-          title,
-          content,
-          description,
-          imageUrl,
+          title: title,
           slug: slugify(title),
-          published: true,
+          description: description,
+          content: content,
+          imageUrl: imageUrl || DEFAULT_ARTICLE_IMAGE,
           categoryId: category.id,
           authorId: author.id,
+          date: new Date(),
+          published: true,
           aiGenerated: true,
           aiModel: "gpt-4",
-          aiPrompt: prompt ? prompt.content : null,
-          keywords: [topic, "ia", "inteligência artificial", "iniciantes"],
+          aiPrompt: contentPrompt,
+          keywords: category.aiKeywords || [],
         },
       });
       console.log("API: Artigo criado:", article);

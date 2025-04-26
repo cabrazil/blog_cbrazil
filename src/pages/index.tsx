@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import Header from "../../app/components/Header";
+import Footer from "../../app/components/Footer";
 
 export default function Home() {
   const [news, setNews] = useState<News[]>([]);
@@ -48,11 +50,6 @@ export default function Home() {
     return "/images/default-article.svg";
   };
 
-  // Função para obter uma URL de avatar padrão
-  const getDefaultAvatarUrl = (name: string): string => {
-    return "/images/default-avatar.svg";
-  };
-
   // Componente de imagem com fallback
   const ArticleImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
     const [imgSrc, setImgSrc] = useState(src);
@@ -83,41 +80,6 @@ export default function Home() {
             setIsLoading(false);
           }}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
-    );
-  };
-
-  // Componente de avatar com fallback
-  const AuthorAvatar = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
-    const [imgSrc, setImgSrc] = useState(src);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-      setImgSrc(src);
-      setIsLoading(true);
-    }, [src]);
-
-    return (
-      <div className={`relative ${className}`}>
-        {isLoading && (
-          <div className="absolute inset-0 bg-gray-200 rounded-full animate-pulse" />
-        )}
-        <Image
-          src={imgSrc}
-          alt={alt}
-          fill
-          className={`rounded-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          onLoad={() => {
-            console.log('Avatar carregado:', imgSrc);
-            setIsLoading(false);
-          }}
-          onError={() => {
-            console.error('Erro ao carregar avatar:', imgSrc);
-            setImgSrc(getDefaultAvatarUrl(alt));
-            setIsLoading(false);
-          }}
-          sizes="24px"
         />
       </div>
     );
@@ -168,40 +130,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="py-8 border-b border-gray-200 bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Image 
-                  src="/images/cbrazil_logo.png" 
-                  alt="cbrazil.com Logo" 
-                  width={220} 
-                  height={60} 
-                  className="mr-2"
-                  priority
-                />
-              </div>
-              <nav className="flex space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Início
-                </Link>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
-                </Link>
-                <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
-                  Sobre
-                </Link>
-                <Link href="/contato" className="text-gray-600 hover:text-gray-900">
-                  Contato
-                </Link>
-                <Link href="/admin" className="text-blue-600 hover:text-blue-800 font-medium">
-                  Admin
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
-
+        <Header />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
             <div className="h-64 bg-gray-200 rounded-lg w-full"></div>
@@ -213,6 +142,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -226,39 +156,7 @@ export default function Home() {
       </Head>
       
       <div className="min-h-screen bg-gray-50">
-        <header className="py-8 border-b border-gray-200 bg-white">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Image 
-                  src="/images/cbrazil_logo.png" 
-                  alt="cbrazil.com Logo" 
-                  width={220} 
-                  height={60} 
-                  className="mr-2"
-                  priority
-                />
-              </div>
-              <nav className="flex space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Início
-                </Link>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
-                </Link>
-                <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
-                  Sobre
-                </Link>
-                <Link href="/contato" className="text-gray-600 hover:text-gray-900">
-                  Contato
-                </Link>
-                <Link href="/admin" className="text-blue-600 hover:text-blue-800 font-medium">
-                  Admin
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
+        <Header />
 
         <main>
           <HeroImage />
@@ -271,11 +169,6 @@ export default function Home() {
                 const imageUrl = isValidImageUrl(article.imageUrl) 
                   ? article.imageUrl 
                   : getDefaultImageUrl(article.title);
-                
-                // Verificar se a URL da imagem do autor é válida
-                const authorImageUrl = isValidImageUrl(article.author?.imageUrl)
-                  ? article.author.imageUrl
-                  : getDefaultAvatarUrl(article.author?.name || 'Author');
                 
                 return (
                   <article key={article.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -303,13 +196,13 @@ export default function Home() {
                         <p className="home-article-description line-clamp-2 mb-4">
                           {article.description}
                         </p>
-                        <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <AuthorAvatar
-                            src={authorImageUrl}
-                            alt={article.author?.name || 'Autor'}
-                            className="h-6 w-6"
-                          />
-                          <span>{article.author?.name || 'Autor'}</span>
+                        <div className="flex justify-end">
+                          <span className="text-blue-600 hover:text-blue-800 text-xs inline-flex items-center">
+                            LEIA MAIS
+                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
                         </div>
                       </div>
                     </Link>
@@ -320,33 +213,7 @@ export default function Home() {
           </div>
         </main>
 
-        <footer className="bg-white border-t border-gray-200 py-12 mt-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-6 md:mb-0">
-                <h2 className="text-2xl font-bold text-gray-900">cbrazil.com</h2>
-                <p className="text-gray-600 mt-1">IA para Todos</p>
-              </div>
-              <div className="flex space-x-6">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
-                  Início
-                </Link>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
-                </Link>
-                <Link href="/sobre" className="text-gray-600 hover:text-gray-900">
-                  Sobre
-                </Link>
-                <Link href="/contato" className="text-gray-600 hover:text-gray-900">
-                  Contato
-                </Link>
-              </div>
-            </div>
-            <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-              © {new Date().getFullYear()} cbrazil.com. Todos os direitos reservados.
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );
