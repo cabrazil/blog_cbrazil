@@ -14,6 +14,7 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const closeTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     fetch('/api/categories-with-articles')
@@ -72,17 +73,23 @@ export default function Header() {
             />
           </Link>
           <nav className="flex space-x-6 relative">
-            <Link href="/" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/') ? ' border-b-2 border-blue-600' : ''}`}>
+            <Link href="/" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Início
             </Link>
             <div 
               className="relative"
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}
+              onMouseEnter={() => {
+                if (closeTimeout.current) clearTimeout(closeTimeout.current)
+                setDropdownOpen(true)
+              }}
+              onMouseLeave={() => {
+                closeTimeout.current = setTimeout(() => setDropdownOpen(false), 250)
+              }}
               ref={dropdownRef}
               onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
+                setDropdownOpen((v) => !v)
               }}
             >
               <button
@@ -95,10 +102,6 @@ export default function Header() {
                 onClick={e => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (typeof window !== 'undefined') {
-                    // eslint-disable-next-line no-console
-                    console.log('Clique no botão TEMAS!')
-                  }
                   setDropdownOpen(v => !v);
                 }}
                 onKeyDown={e => {
@@ -106,6 +109,9 @@ export default function Header() {
                     e.preventDefault();
                     e.stopPropagation();
                     setDropdownOpen(v => !v);
+                  }
+                  if (e.key === 'Escape') {
+                    setDropdownOpen(false);
                   }
                 }}
               >
@@ -118,10 +124,11 @@ export default function Header() {
                     {categories.map((cat) => (
                       <li key={cat.id}>
                         <Link
-                          href={`/categorias/${cat.slug}`}
-                          className={`block px-6 py-2 text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition-colors${router.asPath.startsWith(`/categorias/${cat.slug}`) ? ' border-b-2 border-blue-600' : ''}`}
+                          href={`/categories/${cat.slug}`}
+                          className={`block px-6 py-2 text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition-colors${router.asPath.startsWith(`/categorias/${cat.slug}`) ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}
                           role="menuitem"
                           tabIndex={0}
+                          onClick={() => setDropdownOpen(false)}
                         >
                           {cat.title}
                         </Link>
@@ -131,10 +138,10 @@ export default function Header() {
                 </div>
               )}
             </div>
-            <Link href="/sobre" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/sobre') ? ' border-b-2 border-blue-600' : ''}`}>
+            <Link href="/sobre" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/sobre') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Sobre
             </Link>
-            <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''}`}>
+            <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Contato
             </Link>
           </nav>

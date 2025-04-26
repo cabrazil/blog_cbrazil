@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CategoryWithArticles extends Category {
   articles: (Article & {
@@ -30,6 +30,12 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
   const [articles, setArticles] = useState(category?.articles || []);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
 
+  useEffect(() => {
+    setArticles(category?.articles || []);
+    setTotalPages(initialTotalPages);
+    setCurrentPage(1);
+  }, [category, initialTotalPages]);
+
   if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -37,9 +43,6 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
         <main className="flex-grow bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Categoria não encontrada</h1>
-            <Link href="/categorias" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
-              Voltar para categorias
-            </Link>
           </div>
         </main>
         <Footer />
@@ -77,9 +80,9 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
 
         <main className="container mx-auto px-4 py-8 max-w-4xl flex-grow">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">{category.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 text-center">{category.title}</h1>
             {category.description && (
-              <p className="text-gray-600 mt-2">{category.description}</p>
+              <p className="text-gray-600 mt-2 text-center">{category.description}</p>
             )}
           </div>
 
