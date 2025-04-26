@@ -10,6 +10,8 @@ import { Article as ArticleType } from "@/types/article";
 export default function AdminDashboard() {
   const router = useRouter();
   const [prompts, setPrompts] = useState<AiPrompt[]>([]);
+  const [promptsTotalPages, setPromptsTotalPages] = useState(1);
+  const [promptsCurrentPage, setPromptsCurrentPage] = useState(1);
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,13 +19,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Carregar prompts
-        const promptsResponse = await fetch("/api/admin/prompts");
+        // Carregar prompts ativos e paginados
+        const promptsResponse = await fetch(`/api/admin/prompts?page=${promptsCurrentPage}&limit=10&active=1`);
         if (!promptsResponse.ok) {
           throw new Error("Erro ao carregar prompts");
         }
         const promptsData = await promptsResponse.json();
-        setPrompts(promptsData);
+        setPrompts(promptsData.prompts);
+        setPromptsTotalPages(promptsData.totalPages || 1);
         
         // Carregar artigos
         const articlesResponse = await fetch("/api/news", {
@@ -53,7 +56,7 @@ export default function AdminDashboard() {
             }))
           : [];
 
-        setArticles(validArticles);
+        setArticles(validArticles.filter((article: any) => article.published === false));
       } catch (err) {
         console.error("Erro ao carregar artigos:", err);
         setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -63,7 +66,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [promptsCurrentPage]);
 
   const handleEdit = (id: string) => {
     router.push(`/admin/edit/${id}`);
@@ -90,6 +93,10 @@ export default function AdminDashboard() {
         alert("Erro ao excluir artigo. Por favor, tente novamente.");
       }
     }
+  };
+
+  const handlePromptsPageChange = (page: number) => {
+    setPromptsCurrentPage(page);
   };
 
   if (loading) {
@@ -223,7 +230,7 @@ export default function AdminDashboard() {
               
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Prompts de IA Disponíveis</h3>
-                {prompts.length === 0 ? (
+                {(!Array.isArray(prompts) || prompts.length === 0) ? (
                   <p>Nenhum prompt encontrado.</p>
                 ) : (
                   <div className="overflow-x-auto">
@@ -278,6 +285,21 @@ export default function AdminDashboard() {
                         ))}
                       </tbody>
                     </table>
+                    {promptsTotalPages > 1 && (
+                      <div className="flex justify-center items-center gap-2 mt-4">
+                        <button
+                          onClick={() => handlePromptsPageChange(promptsCurrentPage - 1)}
+                          disabled={promptsCurrentPage === 1}
+                          className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+                        >Anterior</button>
+                        <span className="text-sm">Página {promptsCurrentPage} de {promptsTotalPages}</span>
+                        <button
+                          onClick={() => handlePromptsPageChange(promptsCurrentPage + 1)}
+                          disabled={promptsCurrentPage === promptsTotalPages}
+                          className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+                        >Próxima</button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -33,7 +33,7 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
         throw new Error("Erro ao carregar prompts");
       }
       const data = await response.json();
-      setPrompts(data.filter((prompt: AiPrompt) => prompt.isActive));
+      setPrompts((data.prompts || []).filter((prompt: AiPrompt) => prompt.isActive));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar prompts");
     } finally {

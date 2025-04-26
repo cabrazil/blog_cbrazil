@@ -6,9 +6,11 @@ import { AiPrompt } from '@prisma/client';
 
 interface PromptsPageProps {
   prompts: AiPrompt[];
+  totalPages: number;
+  currentPage: number;
 }
 
-export default function PromptsPage({ prompts }: PromptsPageProps) {
+export default function PromptsPage({ prompts, totalPages, currentPage }: PromptsPageProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [newPrompt, setNewPrompt] = useState({ name: '', content: '' });
@@ -66,6 +68,10 @@ export default function PromptsPage({ prompts }: PromptsPageProps) {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao excluir prompt');
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    router.push(`/admin/prompts?page=${page}`);
   };
 
   return (
@@ -161,22 +167,50 @@ export default function PromptsPage({ prompts }: PromptsPageProps) {
             </li>
           ))}
         </ul>
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+            >Anterior</button>
+            <span className="text-sm">Página {currentPage} de {totalPages}</span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+            >Próxima</button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const prisma = new PrismaClient();
+  const page = parseInt((ctx.query.page as string) || '1', 10);
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
   try {
-    const prompts = await prisma.aiPrompt.findMany({
-      orderBy: { name: 'asc' },
-    });
+    const [prompts, total] = await Promise.all([
+      prisma.aiPrompt.findMany({
+        where: { ativo: true },
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
+      prisma.aiPrompt.count({ where: { ativo: true } })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
 
     return {
       props: {
         prompts: JSON.parse(JSON.stringify(prompts)),
+        totalPages,
+        currentPage: page,
       },
     };
   } catch (error) {
@@ -184,6 +218,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
     return {
       props: {
         prompts: [],
+        totalPages: 1,
+        currentPage: 1,
       },
     };
   } finally {

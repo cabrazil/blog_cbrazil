@@ -18,13 +18,25 @@ export default async function handler(
 // Função para listar todos os prompts
 async function handleGetPrompts(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const prompts = await prisma.aiPrompt.findMany({
-      orderBy: {
-        createdAt: "desc"
-      }
-    });
-    
-    return res.status(200).json(prompts);
+    const page = parseInt((req.query.page as string) || '1', 10);
+    const limit = parseInt((req.query.limit as string) || '10', 10);
+    const skip = (page - 1) * limit;
+    const isActive = req.query.active === '1' || req.query.active === 'true';
+
+    const where = isActive ? { isActive: true } : {};
+
+    const [prompts, total] = await Promise.all([
+      prisma.aiPrompt.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.aiPrompt.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+    return res.status(200).json({ prompts, totalPages });
   } catch (error) {
     console.error("Erro ao buscar prompts:", error);
     return res.status(500).json({ 
