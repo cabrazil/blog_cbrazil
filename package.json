@@ -13,7 +13,6 @@
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@prisma/client": "^5.10.2",
-    "@tinymce/tinymce-react": "^6.1.0",
     "@types/formidable": "^3.4.5",
     "axios": "^1.6.7",
     "date-fns": "^4.1.0",
@@ -35,7 +34,6 @@
     "react-quill": "^2.0.0",
     "remark-gfm": "^4.0.1",
     "sharp": "^0.34.1",
-    "tinymce": "^7.8.0",
     "unsplash-js": "^7.0.19",
     "zod": "^3.24.2"
   },

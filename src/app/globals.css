@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos do Quill */
+.ql-editor {
+  @apply prose prose-lg max-w-none;
+  min-height: 200px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.ql-editor h1 {
+  @apply text-3xl font-bold mt-8 mb-4;
+}
+
+.ql-editor h2 {
+  @apply text-2xl font-bold mt-6 mb-3;
+}
+
+.ql-editor h3 {
+  @apply text-xl font-bold mt-4 mb-2;
+}
+
+.ql-editor p {
+  @apply mb-4 leading-relaxed;
+}
+
+.ql-editor ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.ql-editor ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.ql-editor li {
+  @apply mb-2;
+}
+
+.ql-editor blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.ql-editor code {
+  @apply bg-gray-100 px-1 py-0.5 rounded;
+}
+
+.ql-editor pre {
+  @apply block bg-gray-100 p-4 rounded my-4 overflow-x-auto;
+}
+
+.ql-editor a {
+  @apply text-blue-600 hover:text-blue-800 underline;
+}
+
+.ql-editor img {
+  @apply my-4 rounded-lg;
+}
+
+/* Estilos do editor Quill */
+.ql-container {
+  @apply border border-gray-300 rounded-b-lg;
+}
+
+.ql-toolbar {
+  @apply border border-gray-300 rounded-t-lg bg-gray-50;
+}
+
+.ql-editor.ql-blank::before {
+  @apply text-gray-400;
+  content: attr(data-placeholder);
+  font-style: normal;
+} 

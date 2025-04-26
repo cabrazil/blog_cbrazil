@@ -1,5 +1,6 @@
-import { Editor } from '@tinymce/tinymce-react';
-import { useEffect, useRef } from 'react';
+import { useMemo, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import 'react-quill/dist/quill.snow.css';
 
 interface RichTextEditorProps {
   value: string;
@@ -7,10 +8,34 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
-  const editorRef = useRef<any>(null);
+  // Importação dinâmica do ReactQuill para evitar problemas de SSR
+  const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { 
+    ssr: false,
+    loading: () => <p>Carregando editor...</p>
+  }), []);
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['clean']
+    ],
+    clipboard: {
+      matchVisual: false,
+    }
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link', 'image'
+  ];
 
   // Função para processar o conteúdo HTML
-  const processContent = (content: string | null): string => {
+  const processContent = (content: string): string => {
     if (!content) return '';
     
     // Se o conteúdo já for HTML, retorna como está
@@ -22,62 +47,16 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     return content.replace(/\n/g, '<br>');
   };
 
-  // Atualiza o conteúdo do editor quando o valor muda
-  useEffect(() => {
-    if (editorRef.current && editorRef.current.editor) {
-      const processedContent = processContent(value);
-      editorRef.current.editor.setContent(processedContent);
-    }
-  }, [value]);
-
   return (
-    <Editor
-      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-      onInit={(evt, editor) => editorRef.current = editor}
-      value={processContent(value)}
-      init={{
-        height: 500,
-        menubar: true,
-        plugins: [
-          'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-          'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-          'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks | ' +
-          'bold italic forecolor | alignleft aligncenter ' +
-          'alignright alignjustify | bullist numlist outdent indent | ' +
-          'removeformat | image | help',
-        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 16px; line-height: 1.6; }',
-        images_upload_url: '/api/upload',
-        images_upload_handler: async (blobInfo, progress) => {
-          const formData = new FormData();
-          formData.append('file', blobInfo.blob(), blobInfo.filename());
-          
-          try {
-            const response = await fetch('/api/upload', {
-              method: 'POST',
-              body: formData,
-              headers: {
-                'x-tinymce-upload': 'true'
-              }
-            });
-            
-            if (!response.ok) throw new Error('Upload failed');
-            
-            const data = await response.json();
-            return data.location;
-          } catch (error) {
-            console.error('Upload error:', error);
-            throw new Error('Upload failed');
-          }
-        },
-        setup: (editor) => {
-          editor.on('change', () => {
-            const content = editor.getContent();
-            onChange(content);
-          });
-        }
-      }}
-    />
+    <div className="h-[500px]">
+      <ReactQuill
+        theme="snow"
+        value={processContent(value)}
+        onChange={onChange}
+        modules={modules}
+        formats={formats}
+        className="h-[450px]"
+      />
+    </div>
   );
 } 
