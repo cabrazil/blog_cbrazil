@@ -56,7 +56,12 @@ export default function AdminDashboard() {
             }))
           : [];
 
-        setArticles(validArticles.filter((article: any) => article.published === false));
+        // Ordenar artigos por data de criação (mais recentes primeiro)
+        const sortedArticles = validArticles.sort((a: ArticleType, b: ArticleType) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        setArticles(sortedArticles);
       } catch (err) {
         console.error("Erro ao carregar artigos:", err);
         setError(err instanceof Error ? err.message : "Erro desconhecido");

@@ -144,6 +144,9 @@ export default function Header() {
             <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Contato
             </Link>
+            <Link href="/admin" className={`text-blue-600 hover:text-blue-800 pb-1${isActive('/admin') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
+              Admin
+            </Link>
           </nav>
         </div>
       </div>

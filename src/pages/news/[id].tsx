@@ -24,12 +24,30 @@ export default function NewsDetail() {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
   const [showCommentForm, setShowCommentForm] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchArticle();
+      checkAdminStatus();
     }
   }, [id]);
+
+  const checkAdminStatus = async () => {
+    try {
+      console.log('Verificando status de admin...');
+      const response = await fetch('/api/admin/check', {
+        headers: {
+          'x-admin-request': 'true'
+        }
+      });
+      console.log('Resposta do check admin:', response.status);
+      setIsAdmin(response.ok);
+    } catch (err) {
+      console.error('Erro ao verificar admin:', err);
+      setIsAdmin(false);
+    }
+  };
 
   const fetchArticle = async () => {
     try {
@@ -168,13 +186,23 @@ export default function NewsDetail() {
               </div>
             )}
             <div className="prose prose-lg max-w-none article-content">
-              <p className="text-xl text-gray-700 mb-8">{article.description}</p>
+              <h2 className="text-xl text-gray-700 mb-8">{article.description}</h2>
               <div 
                 className="ql-editor"
                 dangerouslySetInnerHTML={{ 
                   __html: article.content.replace(/\n/g, '<br>') 
                 }}
               />
+              {isAdmin && (
+                <div className="mt-8 pt-4 border-t border-gray-200">
+                  <Link 
+                    href={`/admin/edit/${article.id}`}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Editar Artigo
+                  </Link>
+                </div>
+              )}
             </div>
           </article>
 
@@ -243,14 +271,8 @@ export default function NewsDetail() {
                 ← Voltar para Home
               </Link>
               <div className="flex items-center space-x-4">
-                <Link 
-                  href={`/admin/edit/${id}`} 
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Editar Artigo
-                </Link>
                 <button className="text-sm text-gray-500 hover:text-gray-900">
-                  Compartilhar
+                  .
                 </button>
               </div>
             </div>
