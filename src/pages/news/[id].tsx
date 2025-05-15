@@ -270,11 +270,11 @@ export default function NewsDetail() {
               <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
                 ← Voltar para Home
               </Link>
-              <div className="flex items-center space-x-4">
+              {/* <div className="flex items-center space-x-4">
                 <button className="text-sm text-gray-500 hover:text-gray-900">
                   .
                 </button>
-              </div>
+              </div> */}
             </div>
           </footer>
         </main>

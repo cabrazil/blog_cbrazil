@@ -41,9 +41,9 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Seção Principal */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Logo e Descrição */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1">
             <Link href="/" className="block mb-4">
               <Image 
                 src="/images/cbrazil_logo.png" 
@@ -75,7 +75,7 @@ export default function Footer() {
           </div>
 
           {/* Links Rápidos */}
-          <div>
+          <div className="text-right">
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Links Rápidos
             </h3>
@@ -100,30 +100,12 @@ export default function Footer() {
                   Contato
                 </Link>
               </li>
+              <li>
+                <Link href="/privacidade" className="text-gray-600 hover:text-gray-900">
+                  Políticas de Cookies e Privacidade
+                </Link>
+              </li>
             </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-              Newsletter
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Receba as últimas novidades sobre IA direto no seu email.
-            </p>
-            <form className="space-y-2">
-              <input
-                type="email"
-                placeholder="Seu email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Inscrever-se
-              </button>
-            </form>
           </div>
         </div>
 

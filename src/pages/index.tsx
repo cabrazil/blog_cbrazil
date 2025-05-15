@@ -21,7 +21,11 @@ export default function Home() {
     const fetchArticles = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/news?page=1&limit=6");
+        const response = await fetch("/api/news?page=1&limit=6", {
+          headers: {
+            'Cache-Control': 'public, max-age=60'
+          }
+        });
         if (!response.ok) {
           throw new Error("Erro ao carregar artigos");
         }
@@ -54,7 +58,7 @@ export default function Home() {
     return "/images/default-article.svg";
   };
 
-  // Componente de imagem com fallback
+  // Componente de imagem com fallback e lazy loading
   const ArticleImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
     const [imgSrc, setImgSrc] = useState(src);
     const [isLoading, setIsLoading] = useState(true);
@@ -73,13 +77,10 @@ export default function Home() {
           src={imgSrc}
           alt={alt}
           fill
+          loading="lazy"
           className={`object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          onLoad={() => {
-            console.log('Imagem carregada:', imgSrc);
-            setIsLoading(false);
-          }}
+          onLoad={() => setIsLoading(false)}
           onError={() => {
-            console.error('Erro ao carregar imagem:', imgSrc);
             setImgSrc(getDefaultImageUrl(alt));
             setIsLoading(false);
           }}
@@ -89,18 +90,16 @@ export default function Home() {
     );
   };
 
-  // Componente de imagem principal com fallback
+  // Componente de imagem principal com fallback e preload
   const HeroImage = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
 
     return (
       <div className="relative h-[70vh] w-full overflow-hidden">
-        {/* Placeholder durante o carregamento */}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gray-800 animate-pulse" />
         )}
         
-        {/* Imagem principal */}
         <div className={`absolute inset-0 transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <Image
             src="https://images.unsplash.com/photo-1677442136019-21780ecad995"
@@ -109,14 +108,10 @@ export default function Home() {
             className="object-cover"
             priority
             sizes="100vw"
-            onLoad={() => {
-              console.log('Imagem principal carregada');
-              setImageLoaded(true);
-            }}
+            onLoad={() => setImageLoaded(true)}
           />
         </div>
         
-        {/* Gradiente e conteúdo */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70">
           <div className="h-full flex flex-col justify-center items-center text-center px-4">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
