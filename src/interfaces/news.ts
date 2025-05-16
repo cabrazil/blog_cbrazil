@@ -5,6 +5,7 @@ export interface News {
   description: string;
   date: string;
   datetime: string;
+  slug: string;
   category: {
     title: string;
   };

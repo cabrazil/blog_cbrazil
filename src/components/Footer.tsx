@@ -7,8 +7,32 @@ import {
   FaLinkedinIn, 
   FaTwitter 
 } from 'react-icons/fa'
+import { useState, useEffect } from "react";
+import { Category } from "@prisma/client";
 
 export default function Footer() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Erro ao carregar categorias");
+        }
+        const data = await response.json();
+        setCategories(data.categories);
+      } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const socialLinks = [
     {
       name: 'Instagram',
@@ -39,9 +63,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-white border-t border-gray-200">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Seção Principal */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo e Descrição */}
           <div className="col-span-1">
             <Link href="/" className="block mb-4">
@@ -75,7 +99,7 @@ export default function Footer() {
           </div>
 
           {/* Links Rápidos */}
-          <div className="text-right">
+          <div>
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
               Links Rápidos
             </h3>
@@ -83,11 +107,6 @@ export default function Footer() {
               <li>
                 <Link href="/" className="text-gray-600 hover:text-gray-900">
                   Início
-                </Link>
-              </li>
-              <li>
-                <Link href="/categorias" className="text-gray-600 hover:text-gray-900">
-                  Categorias
                 </Link>
               </li>
               <li>
@@ -106,6 +125,33 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
+          </div>
+
+          {/* Categorias */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+              Categorias
+            </h3>
+            {loading ? (
+              <div className="animate-pulse space-y-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-4 bg-gray-200 rounded w-3/4"></div>
+                ))}
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {categories.map((category) => (
+                  <li key={category.id}>
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="text-gray-600 hover:text-gray-900"
+                    >
+                      {category.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
