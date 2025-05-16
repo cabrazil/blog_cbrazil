@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
+import AdminLogin from './AdminLogin'
 
 interface Category {
   id: string
@@ -52,27 +53,23 @@ export default function Header() {
     return current === target || current.startsWith(target + '/');
   }
 
-  // Log para depuração
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    console.log('router.asPath:', router.asPath)
-  }
-
   return (
     <header className="py-8 border-b border-gray-200 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 hover:opacity-90">
-            <Image 
-              src="/images/cbrazil_logo.png" 
-              alt="cbrazil.com Logo" 
-              width={220} 
-              height={60} 
-              className="mr-2"
-              priority
-            />
+            <div className="relative w-[220px] h-[60px]">
+              <Image 
+                src="/images/cbrazil_logo.png" 
+                alt="cbrazil.com Logo" 
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+                sizes="(max-width: 768px) 100vw, 220px"
+              />
+            </div>
           </Link>
-          <nav className="flex space-x-6 relative">
+          <nav className="flex items-center space-x-8">
             <Link href="/" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Início
             </Link>
@@ -86,11 +83,6 @@ export default function Header() {
                 closeTimeout.current = setTimeout(() => setDropdownOpen(false), 250)
               }}
               ref={dropdownRef}
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                setDropdownOpen((v) => !v)
-              }}
             >
               <button
                 className={`text-gray-600 hover:text-gray-900 pb-1 flex items-center uppercase`}
@@ -116,7 +108,7 @@ export default function Header() {
                 }}
               >
                 CATEGORIAS
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </button>
               {dropdownOpen && (
                 <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-20 animate-fade-in pt-2" role="menu">
@@ -144,9 +136,9 @@ export default function Header() {
             <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Contato
             </Link>
-            <Link href="/admin" className={`text-blue-600 hover:text-blue-800 pb-1${isActive('/admin') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
-              Admin
-            </Link>
+            <div className="flex items-center">
+              <AdminLogin />
+            </div>
           </nav>
         </div>
       </div>

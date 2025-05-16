@@ -2,54 +2,46 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
-import { GetServerSideProps } from 'next'
-import { PrismaClient } from '@prisma/client'
 
-interface Prompt {
-  id: number
+interface Command {
+  id: string
   name: string
+  description: string
   content: string
-  isActive: boolean
   createdAt: string
 }
 
-interface EditPromptPageProps {
-  prompt: Prompt
+interface EditCommandPageProps {
+  command: Command
 }
 
-export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPageProps) {
+export default function EditCommandPage({ command: initialCommand }: EditCommandPageProps) {
   const router = useRouter()
-  const [prompt, setPrompt] = useState(initialPrompt)
+  const [command, setCommand] = useState(initialCommand)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setSuccess(false)
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/admin/prompts/${prompt.id}`, {
+      const response = await fetch(`/api/admin/commands/${command.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(prompt),
+        body: JSON.stringify(command),
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || 'Erro ao atualizar prompt')
+        throw new Error('Erro ao atualizar comando')
       }
 
-      setSuccess(true)
-      setTimeout(() => {
-        router.push('/admin')
-      }, 1500)
+      router.push('/admin')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar prompt')
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar comando')
     } finally {
       setIsLoading(false)
     }
@@ -58,15 +50,15 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
   return (
     <>
       <Head>
-        <title>Editar Prompt - Painel de Administração</title>
-        <meta name="description" content="Editar prompt de IA" />
+        <title>Editar Comando - Painel de Administração</title>
+        <meta name="description" content="Editar comando" />
       </Head>
 
       <div className="min-h-screen bg-gray-100">
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Editar Prompt</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Editar Comando</h1>
               <Link href="/admin" className="text-blue-600 hover:text-blue-800">
                 Voltar para o painel
               </Link>
@@ -77,12 +69,6 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <div className="bg-white shadow rounded-lg p-6">
-              {success && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md">
-                  Prompt atualizado com sucesso! Redirecionando...
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -91,14 +77,24 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
                   <input
                     type="text"
                     id="name"
-                    value={prompt.name}
-                    onChange={(e) => {
-                      setPrompt({ ...prompt, name: e.target.value })
-                      setError(null)
-                    }}
+                    value={command.name}
+                    onChange={(e) => setCommand({ ...command, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     required
-                    placeholder="Digite um nome para o prompt"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                    Descrição
+                  </label>
+                  <input
+                    type="text"
+                    id="description"
+                    value={command.description}
+                    onChange={(e) => setCommand({ ...command, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    required
                   />
                 </div>
 
@@ -108,32 +104,12 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
                   </label>
                   <textarea
                     id="content"
-                    value={prompt.content}
-                    onChange={(e) => {
-                      setPrompt({ ...prompt, content: e.target.value })
-                      setError(null)
-                    }}
+                    value={command.content}
+                    onChange={(e) => setCommand({ ...command, content: e.target.value })}
                     rows={6}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     required
-                    placeholder="Use {topic} para referenciar o tópico do artigo. Exemplo: 'Escreva um artigo sobre {topic}'"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Use {'{topic}'} para referenciar o tópico do artigo. O texto será substituído automaticamente.
-                  </p>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    checked={prompt.isActive}
-                    onChange={(e) => setPrompt({ ...prompt, isActive: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
-                    Ativo
-                  </label>
                 </div>
 
                 {error && (
@@ -151,10 +127,10 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
                   </Link>
                   <button
                     type="submit"
-                    disabled={isLoading || success}
+                    disabled={isLoading}
                     className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                   >
-                    {isLoading ? 'Salvando...' : success ? 'Salvo!' : 'Salvar'}
+                    {isLoading ? 'Salvando...' : 'Salvar'}
                   </button>
                 </div>
               </form>
@@ -164,40 +140,4 @@ export default function EditPromptPage({ prompt: initialPrompt }: EditPromptPage
       </div>
     </>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const prisma = new PrismaClient()
-  const id = parseInt(context.params?.id as string)
-
-  if (isNaN(id)) {
-    return {
-      notFound: true,
-    }
-  }
-
-  try {
-    const prompt = await prisma.aiPrompt.findUnique({
-      where: { id },
-    })
-
-    if (!prompt) {
-      return {
-        notFound: true,
-      }
-    }
-
-    return {
-      props: {
-        prompt: JSON.parse(JSON.stringify(prompt)),
-      },
-    }
-  } catch (error) {
-    console.error('Erro ao carregar prompt:', error)
-    return {
-      notFound: true,
-    }
-  } finally {
-    await prisma.$disconnect()
-  }
 } 

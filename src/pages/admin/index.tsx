@@ -1,326 +1,290 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import Link from "next/link";
-import { AiPrompt, Article } from "@prisma/client";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { Article as ArticleType } from "@/types/article";
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import Head from 'next/head'
+import Link from 'next/link'
+import Image from 'next/image'
+import { GetServerSideProps } from 'next'
+import { PrismaClient } from '@prisma/client'
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [prompts, setPrompts] = useState<AiPrompt[]>([]);
-  const [promptsTotalPages, setPromptsTotalPages] = useState(1);
-  const [promptsCurrentPage, setPromptsCurrentPage] = useState(1);
-  const [articles, setArticles] = useState<ArticleType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Article {
+  id: number
+  title: string
+  description: string
+  imageUrl: string
+  published: boolean
+  createdAt: string
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Carregar prompts ativos e paginados
-        const promptsResponse = await fetch(`/api/admin/prompts?page=${promptsCurrentPage}&limit=10&active=1`);
-        if (!promptsResponse.ok) {
-          throw new Error("Erro ao carregar prompts");
-        }
-        const promptsData = await promptsResponse.json();
-        setPrompts(promptsData.prompts);
-        setPromptsTotalPages(promptsData.totalPages || 1);
-        
-        // Carregar artigos
-        const articlesResponse = await fetch("/api/news", {
-          headers: {
-            "x-admin-request": "true"
-          }
-        });
-        if (!articlesResponse.ok) {
-          throw new Error("Erro ao carregar artigos");
-        }
-        const articlesData = await articlesResponse.json();
-        
-        // Garantir que articles seja sempre um array
-        const validArticles = Array.isArray(articlesData.articles) 
-          ? articlesData.articles.map((article: any) => ({
-              id: article.id || '',
-              title: article.title || '',
-              slug: article.slug || '',
-              createdAt: article.createdAt || new Date().toISOString(),
-              updatedAt: article.updatedAt || new Date().toISOString(),
-              description: article.description || '',
-              imageUrl: article.imageUrl || '',
-              parentId: article.parentId || null,
-              aiKeywords: article.aiKeywords || [],
-              aiPrompt: article.aiPrompt || '',
-              published: article.published || false
-            }))
-          : [];
+interface Prompt {
+  id: number
+  name: string
+  content: string
+  isActive: boolean
+  createdAt: string
+}
 
-        // Ordenar artigos por data de criação (mais recentes primeiro)
-        const sortedArticles = validArticles.sort((a: ArticleType, b: ArticleType) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+interface AdminPageProps {
+  articles: Article[]
+  prompts: Prompt[]
+}
 
-        setArticles(sortedArticles);
-      } catch (err) {
-        console.error("Erro ao carregar artigos:", err);
-        setError(err instanceof Error ? err.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
-      }
-    };
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
 
-    fetchData();
-  }, [promptsCurrentPage]);
+export default function AdminPage({ articles: initialArticles, prompts: initialPrompts }: AdminPageProps) {
+  const router = useRouter()
+  const [articles] = useState(initialArticles)
+  const [prompts] = useState(initialPrompts)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleEdit = (id: string) => {
-    router.push(`/admin/edit/${id}`);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este artigo?")) {
-      try {
-        const response = await fetch(`/api/news/${id}`, {
-          method: "DELETE",
-          headers: {
-            "x-admin-request": "true",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Erro ao excluir artigo");
-        }
-
-        // Atualizar a lista de artigos após a exclusão
-        setArticles(articles.filter((article) => article.id !== id));
-      } catch (err) {
-        console.error("Erro ao excluir artigo:", err);
-        alert("Erro ao excluir artigo. Por favor, tente novamente.");
-      }
+  const handleDeleteArticle = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir este artigo?')) {
+      return
     }
-  };
 
-  const handlePromptsPageChange = (page: number) => {
-    setPromptsCurrentPage(page);
-  };
+    setError(null)
+    setIsLoading(true)
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    try {
+      const response = await fetch(`/api/admin/articles/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao excluir artigo')
+      }
+
+      router.reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir artigo')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
+  const handleDeletePrompt = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir este prompt?')) {
+      return
+    }
+
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`/api/admin/prompts/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao excluir prompt')
+      }
+
+      router.reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir prompt')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <>
       <Head>
-        <title>Painel de Administração - cbrazil.com</title>
-        <meta name="description" content="Painel de administração do blog sobre IA" />
+        <title>Painel de Administração</title>
+        <meta name="description" content="Painel de administração do blog" />
       </Head>
-      
-      <div className="min-h-screen bg-gray-50">
+
+      <div className="min-h-screen bg-gray-100">
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-gray-900">Painel de Administração</h1>
-              <Link href="/" className="text-blue-600 hover:text-blue-800">
-                Voltar para o site
-              </Link>
+              <div className="flex space-x-4">
+                <Link
+                  href="/api/auth/logout"
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Sair
+                </Link>
+              </div>
             </div>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Gerenciamento de Artigos sobre IA</h2>
-              
-              <div className="mb-6">
-                <Link 
-                  href="/admin/generate" 
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Gerar Novo Artigo
-                </Link>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Artigos Recentes</h3>
-                {articles.length === 0 ? (
-                  <p>Nenhum artigo encontrado.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Título
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Data
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ações
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {articles.map((article) => (
-                          <tr key={article.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {article.title}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(article.createdAt).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {article.published ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  Publicado
-                                </span>
-                              ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                  Rascunho
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <div className="flex space-x-2">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => router.push(`/news/${article.id}`)}
-                                  className="text-blue-600 hover:text-blue-700"
-                                >
-                                  Ver
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleEdit(article.id)}
-                                  className="text-green-600 hover:text-green-700"
-                                >
-                                  Editar
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleDelete(article.id)}
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  Excluir
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* Seção de Artigos */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold">Artigos</h2>
+                  <Link
+                    href="/admin/generate"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Gerar Novo
+                  </Link>
+                </div>
+
+                {error && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+                    {error}
                   </div>
                 )}
-              </div>
-            </div>
-            
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Gerenciamento de Prompts</h2>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Prompts de IA Disponíveis</h3>
-                {(!Array.isArray(prompts) || prompts.length === 0) ? (
-                  <p>Nenhum prompt encontrado.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Nome
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Conteúdo
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ações
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {prompts.map((prompt) => (
-                          <tr key={prompt.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {prompt.name}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-500">
-                              {prompt.content.length > 100 
-                                ? `${prompt.content.substring(0, 100)}...` 
-                                : prompt.content}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {prompt.isActive ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  Ativo
-                                </span>
-                              ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                  Inativo
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <Link 
-                                href={`/admin/prompts/${prompt.id}`}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                Editar
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {promptsTotalPages > 1 && (
-                      <div className="flex justify-center items-center gap-2 mt-4">
-                        <button
-                          onClick={() => handlePromptsPageChange(promptsCurrentPage - 1)}
-                          disabled={promptsCurrentPage === 1}
-                          className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
-                        >Anterior</button>
-                        <span className="text-sm">Página {promptsCurrentPage} de {promptsTotalPages}</span>
-                        <button
-                          onClick={() => handlePromptsPageChange(promptsCurrentPage + 1)}
-                          disabled={promptsCurrentPage === promptsTotalPages}
-                          className="px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
-                        >Próxima</button>
+
+                <div className="space-y-4">
+                  {articles?.map((article) => (
+                    <div
+                      key={article.id}
+                      className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
+                    >
+                      {article.imageUrl && (
+                        <div className="relative h-16 w-16 flex-shrink-0">
+                          <Image
+                            src={article.imageUrl}
+                            alt={article.title}
+                            fill
+                            className="object-cover rounded"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 truncate">
+                          {article.description}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Criado em: {formatDate(article.createdAt)}
+                        </p>
                       </div>
-                    )}
-                  </div>
-                )}
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/edit/${article.id}`}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteArticle(article.id)}
+                          disabled={isLoading}
+                          className="text-red-600 hover:text-red-900 focus:outline-none"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              
-              <div className="mt-6">
-                <Link 
-                  href="/admin/prompts/new" 
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  Criar Novo Prompt
-                </Link>
+
+              {/* Seção de Prompts */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold">Prompts</h2>
+                  <Link
+                    href="/admin/prompts/new"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Novo Prompt
+                  </Link>
+                </div>
+
+                <div className="space-y-4">
+                  {prompts?.map((prompt) => (
+                    <div
+                      key={prompt.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                          {prompt.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 truncate">
+                          {prompt.content}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Criado em: {formatDate(prompt.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/prompts/${prompt.id}`}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          onClick={() => handleDeletePrompt(prompt.id)}
+                          disabled={isLoading}
+                          className="text-red-600 hover:text-red-900 focus:outline-none"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </main>
       </div>
     </>
-  );
+  )
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const prisma = new PrismaClient()
+
+  try {
+    const [articles, prompts] = await Promise.all([
+      prisma.article.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          published: true,
+          createdAt: true,
+        },
+      }),
+      prisma.aiPrompt.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          content: true,
+          isActive: true,
+          createdAt: true,
+        },
+      }),
+    ])
+
+    return {
+      props: {
+        articles: JSON.parse(JSON.stringify(articles)),
+        prompts: JSON.parse(JSON.stringify(prompts)),
+      },
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error)
+    return {
+      props: {
+        articles: [],
+        prompts: [],
+      },
+    }
+  } finally {
+    await prisma.$disconnect()
+  }
 } 

@@ -41,16 +41,32 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateForm = () => {
     if (!selectedCategory) {
       setError("Por favor, selecione uma categoria");
+      return false;
+    }
+    if (!topic.trim()) {
+      setError("Por favor, digite um tópico");
+      return false;
+    }
+    if (topic.length < 3) {
+      setError("O tópico deve ter pelo menos 3 caracteres");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!validateForm()) {
       return;
     }
     
     setGenerating(true);
-    setError(null);
-    setSuccess(null);
 
     try {
       const response = await fetch("/api/ai-articles", {
@@ -66,14 +82,13 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || "Erro ao gerar artigo");
       }
 
-      const data = await response.json();
       setSuccess("Artigo gerado com sucesso!");
-      setGenerating(false);
       
       // Redirecionar para o artigo após 2 segundos
       setTimeout(() => {
@@ -82,7 +97,25 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
     } catch (err) {
       console.error("Erro detalhado:", err);
       setError(err instanceof Error ? err.message : "Erro ao gerar artigo");
+    } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setError(null);
+    const { name, value } = e.target;
+    
+    switch (name) {
+      case 'prompt':
+        setSelectedPrompt(value);
+        break;
+      case 'category':
+        setSelectedCategory(value);
+        break;
+      case 'topic':
+        setTopic(value);
+        break;
     }
   };
 
@@ -115,8 +148,9 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
                   </label>
                   <select
                     id="category"
+                    name="category"
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
@@ -138,8 +172,9 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
                   </label>
                   <select
                     id="prompt"
+                    name="prompt"
                     value={selectedPrompt}
-                    onChange={(e) => setSelectedPrompt(e.target.value)}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Selecione um prompt</option>
@@ -161,11 +196,13 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
                   <input
                     type="text"
                     id="topic"
+                    name="topic"
                     value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Ex: Introdução à Inteligência Artificial"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     required
+                    minLength={3}
                   />
                   <p className="mt-1 text-sm text-gray-500">
                     Descreva o tópico sobre o qual você deseja gerar um artigo.

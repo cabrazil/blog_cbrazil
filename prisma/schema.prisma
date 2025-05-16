@@ -18,7 +18,7 @@ model Article {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   categoryId       Int
-  authorId         Int
+  authorId         String
   userId           Int?
   slug             String            @unique
   published        Boolean           @default(false)
@@ -47,7 +47,7 @@ model Article {
 }
 
 model Author {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(cuid())
   name      String
   role      String
   imageUrl  String
@@ -97,7 +97,7 @@ model Comment {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   articleId   Int
-  authorId    Int?
+  authorId    String?
   userId      Int?
   approved    Boolean   @default(false)
   parentId    Int?

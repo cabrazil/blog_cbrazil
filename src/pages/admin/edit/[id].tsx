@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { PrismaClient } from '@prisma/client';
@@ -29,120 +29,21 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
   const { id } = router.query;
   
   const [title, setTitle] = useState(article.title);
-  const [content, setContent] = useState(article.content || '');
-  
-  // Log para verificar o conteúdo
-  useEffect(() => {
-    console.log('Conteúdo carregado:', article.content);
-  }, [article.content]);
-  
   const [description, setDescription] = useState(article.description);
-  const [imageUrl, setImageUrl] = useState(article.imageUrl);
+  const [content, setContent] = useState(article.content || '');
+  const [imageUrl, setImageUrl] = useState(article.imageUrl || '');
   const [categoryId, setCategoryId] = useState(article.categoryId);
   const [published, setPublished] = useState(article.published);
-  const [uploading, setUploading] = useState(false);
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  const extractUnsplashImageUrl = (url: string) => {
-    // Se a URL já for uma URL direta de imagem, retorna ela mesma
-    if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-      return url;
-    }
-
-    // Extrai o ID da imagem da URL do Unsplash
-    // Suporta URLs em português e inglês
-    const match = url.match(/(?:fotografias|photos)\/([^\/\?]+)/);
-    if (match) {
-      const imageId = match[1];
-      // Remove caracteres especiais e acentos do ID
-      const cleanImageId = imageId.replace(/[^a-zA-Z0-9-]/g, '');
-      // Constrói a URL direta da imagem com parâmetros de qualidade
-      return `https://images.unsplash.com/photo-${cleanImageId}?auto=format&fit=crop&w=1200&h=800&q=80`;
-    }
-
-    // Se não conseguir extrair o ID, retorna a URL original
-    return url;
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    
-    const file = e.target.files[0];
-    setUploading(true);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erro ao fazer upload da imagem');
-      }
-      
-      const data = await response.json();
-      setImageUrl(data.url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao fazer upload da imagem');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const validateImageUrl = async (url: string) => {
-    try {
-      // Se a URL for do Unsplash, tenta extrair o ID e construir a URL direta
-      if (url.includes('unsplash.com')) {
-        const directUrl = extractUnsplashImageUrl(url);
-        const response = await fetch(directUrl, { method: 'HEAD' });
-        return response.ok;
-      }
-
-      // Para outras URLs, faz a validação normal
-      const response = await fetch(url, { method: 'HEAD' });
-      return response.ok;
-    } catch (error) {
-      console.error('Erro ao validar URL da imagem:', error);
-      return false;
-    }
-  };
-
-  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
-    // Se for uma URL do Unsplash, extrai a URL direta da imagem
-    if (url.includes('unsplash.com')) {
-      const directUrl = extractUnsplashImageUrl(url);
-      console.log('URL original:', url);
-      console.log('URL direta:', directUrl);
-      setImageUrl(directUrl);
-    } else {
-      setImageUrl(url);
-    }
-  };
+  const [uploading, setUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(null);
 
     try {
-      console.log('Estado atual do published:', published);
-
-      // Validar URL da imagem
-      if (imageUrl) {
-        const isValid = await validateImageUrl(imageUrl);
-        if (!isValid) {
-          throw new Error('A URL da imagem não é acessível. Por favor, verifique a URL e tente novamente.');
-        }
-      }
-
       const response = await fetch(`/api/news/${id}`, {
         method: 'PUT',
         headers: {
@@ -159,20 +60,46 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao atualizar o artigo');
+        throw new Error('Erro ao atualizar artigo');
       }
 
-      const updatedArticle = await response.json();
-      console.log('Resposta da API:', updatedArticle);
-
-      setSuccess('Artigo atualizado com sucesso!');
       router.push('/admin');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar o artigo');
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar artigo');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao fazer upload da imagem');
+      }
+
+      const data = await response.json();
+      setImageUrl(data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer upload da imagem');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageUrl(e.target.value);
   };
 
   return (
@@ -182,7 +109,7 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
         <meta name="description" content="Editar um artigo existente" />
       </Head>
       
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-100">
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center">
@@ -282,9 +209,11 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
                     <select
                       id="category"
                       value={categoryId}
-                      onChange={(e) => setCategoryId(parseInt(e.target.value))}
+                      onChange={(e) => setCategoryId(Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      required
                     >
+                      <option value="">Selecione uma categoria</option>
                       {categories.map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.title}
@@ -293,16 +222,15 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
                     </select>
                   </div>
                   
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="published"
-                      checked={published}
-                      onChange={(e) => setPublished(e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="published" className="ml-2 block text-sm text-gray-700">
-                      Publicado
+                  <div>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={published}
+                        onChange={(e) => setPublished(e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Publicar artigo</span>
                     </label>
                   </div>
                 </div>
@@ -310,12 +238,6 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
                 {error && (
                   <div className="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
                     {error}
-                  </div>
-                )}
-                
-                {success && (
-                  <div className="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md">
-                    {success}
                   </div>
                 )}
                 

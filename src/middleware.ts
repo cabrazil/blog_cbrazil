@@ -1,37 +1,30 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getSession } from '@auth0/nextjs-auth0/edge'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Verificar se a rota é administrativa
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Verificar se o usuário está autenticado
-    const authHeader = request.headers.get('authorization')
-    
-    if (!authHeader) {
-      return new NextResponse('Autenticação necessária', {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Área Administrativa"',
-        },
-      })
-    }
+    try {
+      const session = await getSession(request, new NextResponse())
+      
+      // Se não houver sessão, redirecionar para o login
+      if (!session) {
+        const loginUrl = new URL('/api/auth/login', request.url)
+        loginUrl.searchParams.set('returnTo', request.nextUrl.pathname)
+        return NextResponse.redirect(loginUrl)
+      }
 
-    // Decodificar as credenciais
-    const base64Credentials = authHeader.split(' ')[1]
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
-    const [username, password] = credentials.split(':')
+      // Verificar se o usuário é o admin autorizado
+      const user = session.user
+      if (user?.email !== 'admin@cbrazil.com') {
+        return new NextResponse('Acesso não autorizado', { status: 403 })
+      }
 
-    // Verificar as credenciais
-    const validUsername = process.env.ADMIN_USERNAME
-    const validPassword = process.env.ADMIN_PASSWORD
-
-    if (username !== validUsername || password !== validPassword) {
-      return new NextResponse('Credenciais inválidas', {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Área Administrativa"',
-        },
-      })
+      return NextResponse.next()
+    } catch (error) {
+      console.error('Erro na autenticação:', error)
+      return new NextResponse('Erro na autenticação', { status: 500 })
     }
   }
 

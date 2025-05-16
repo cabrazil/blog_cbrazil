@@ -9,4 +9,12 @@ export interface Article {
   parentId: string | null;
   aiKeywords: string[];
   aiPrompt: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  title: string;
+  slug: string;
+  category?: string;
 } 
