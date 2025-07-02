@@ -6,16 +6,20 @@ import { Category, AiPrompt } from '@prisma/client';
 import Head from 'next/head';
 import Link from 'next/link';
 
+import { Author } from '@prisma/client';
+
 interface GeneratePageProps {
   categories: Category[];
   prompts: AiPrompt[];
+  authors: Author[];
 }
 
-export default function GenerateArticle({ categories }: GeneratePageProps) {
+export default function GenerateArticle({ categories, authors }: GeneratePageProps) {
   const router = useRouter();
   const [prompts, setPrompts] = useState<AiPrompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedAuthor, setSelectedAuthor] = useState<string>("");
   const [topic, setTopic] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -44,6 +48,10 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
   const validateForm = () => {
     if (!selectedCategory) {
       setError("Por favor, selecione uma categoria");
+      return false;
+    }
+    if (!selectedAuthor) {
+      setError("Por favor, selecione um autor");
       return false;
     }
     if (!topic.trim()) {
@@ -77,6 +85,7 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
         body: JSON.stringify({
           promptId: selectedPrompt ? parseInt(selectedPrompt) : null,
           categoryId: parseInt(selectedCategory),
+          authorId: parseInt(selectedAuthor),
           topic,
           count: 1,
         }),
@@ -115,6 +124,9 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
         break;
       case 'topic':
         setTopic(value);
+        break;
+      case 'author':
+        setSelectedAuthor(value);
         break;
     }
   };
@@ -163,6 +175,30 @@ export default function GenerateArticle({ categories }: GeneratePageProps) {
                   </select>
                   <p className="mt-1 text-sm text-gray-500">
                     Escolha a categoria em que o artigo será publicado.
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+                    Autor do Artigo
+                  </label>
+                  <select
+                    id="author"
+                    name="author"
+                    value={selectedAuthor}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  >
+                    <option value="">Selecione um autor</option>
+                    {authors.map((author) => (
+                      <option key={author.id} value={author.id}>
+                        {author.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Selecione o autor que assinará o artigo.
                   </p>
                 </div>
 
@@ -258,10 +294,15 @@ export const getServerSideProps: GetServerSideProps = async () => {
       orderBy: { name: 'asc' },
     });
 
+    const authors = await prisma.author.findMany({
+      orderBy: { name: 'asc' },
+    });
+
     return {
       props: {
         categories: JSON.parse(JSON.stringify(categories)),
         prompts: JSON.parse(JSON.stringify(prompts)),
+        authors: JSON.parse(JSON.stringify(authors)),
       },
     };
   } catch (error) {

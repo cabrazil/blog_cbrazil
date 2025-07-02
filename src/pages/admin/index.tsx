@@ -53,7 +53,7 @@ export default function AdminPage({ articles: initialArticles, prompts: initialP
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/admin/articles/${id}`, {
+      const response = await fetch(`/api/news/${id}`, {
         method: 'DELETE',
       })
 
@@ -107,12 +107,20 @@ export default function AdminPage({ articles: initialArticles, prompts: initialP
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-gray-900">Painel de Administração</h1>
               <div className="flex space-x-4">
+                <div className="flex space-x-4">
+                <Link
+                  href="/"
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  Ver Blog
+                </Link>
                 <Link
                   href="/api/auth/logout"
                   className="text-red-600 hover:text-red-800"
                 >
                   Sair
                 </Link>
+              </div>
               </div>
             </div>
           </div>

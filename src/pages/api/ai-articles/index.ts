@@ -27,8 +27,8 @@ export default async function handler(
   }
 
   try {
-    const { topic, count = 1, promptId, categoryId } = req.body;
-    console.log("API: Dados recebidos:", { topic, count, promptId, categoryId });
+    const { topic, count = 1, promptId, categoryId, authorId } = req.body;
+    console.log("API: Dados recebidos:", { topic, count, promptId, categoryId, authorId });
 
     if (!topic) {
       console.log("API: Tópico não fornecido");
@@ -38,6 +38,11 @@ export default async function handler(
     if (!categoryId) {
       console.log("API: Categoria não fornecida");
       return res.status(400).json({ message: "A categoria é obrigatória" });
+    }
+
+    if (!authorId) {
+      console.log("API: Autor não fornecido");
+      return res.status(400).json({ message: "O autor é obrigatório" });
     }
 
     // Buscar a categoria selecionada
@@ -54,29 +59,19 @@ export default async function handler(
     }
     console.log("API: Categoria encontrada:", category);
 
-    // Verificar se o autor "Assistente IA" existe
+    // Buscar o autor selecionado
     console.log("API: Verificando autor...");
-    let author = await prisma.author.findFirst({
+    const author = await prisma.author.findUnique({
       where: {
-        name: "Assistente IA",
+        id: authorId,
       },
     });
-    console.log("API: Autor encontrado:", author);
 
     if (!author) {
-      console.log("API: Criando novo autor...");
-      author = await prisma.author.create({
-        data: {
-          name: "Assistente IA",
-          role: "Especialista em IA",
-          imageUrl: DEFAULT_AUTHOR_IMAGE,
-          bio: "Assistente especializado em Inteligência Artificial, criado para gerar conteúdo educativo sobre IA.",
-          isAi: true,
-          aiModel: "gpt-4",
-        },
-      });
-      console.log("API: Novo autor criado:", author);
+      console.log("API: Autor não encontrado");
+      return res.status(404).json({ message: "Autor não encontrado" });
     }
+    console.log("API: Autor encontrado:", author);
 
     // Obter o prompt se um ID foi fornecido
     let prompt = null;
@@ -94,76 +89,100 @@ export default async function handler(
 
     // Gerar artigos
     for (let i = 0; i < count; i++) {
-      console.log(`API: Gerando artigo ${i + 1} de ${count}...`);
-      
-      // Gerar título
-      console.log("API: Gerando título...");
-      const titlePrompt = prompt 
-        ? `${prompt.content}\n\nGere um título conciso e impactante para um artigo sobre: ${topic}. O título deve ter no máximo 8 palavras, ser atraente para o público-alvo e NÃO deve começar com a palavra "Título" ou conter essa palavra em nenhum lugar do texto. O título deve ser uma única linha, sem descrição ou texto adicional.`
-        : `Gere um título conciso e impactante para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ter no máximo 8 palavras, ser atraente para iniciantes e NÃO deve começar com a palavra "Título" ou conter essa palavra em nenhum lugar do texto. O título deve ser uma única linha, sem descrição ou texto adicional.`;
-      
-      const titleResponse = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: titlePrompt }],
-        max_tokens: 50,
-      });
-      
-      const title = titleResponse.choices[0]?.message?.content?.trim() || `Artigo sobre ${topic}`;
-      console.log("API: Título gerado:", title);
+      let title: string;
+      let description: string;
+      let content: string;
+      let finalPrompt: string;
 
-      // Gerar descrição
-      console.log("API: Gerando descrição...");
-      const descriptionPrompt = prompt 
-        ? `${prompt.content}\n\nGere uma descrição curta e direta para um artigo sobre: ${topic}. A descrição deve ter no máximo 100 caracteres e ser impactante. A descrição deve ser uma única linha, sem incluir a palavra "Descrição" ou "Título".`
-        : `Gere uma descrição curta e direta (máximo 100 caracteres) para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. A descrição deve ser impactante. A descrição deve ser uma única linha, sem incluir a palavra "Descrição" ou "Título".`;
-      
-      const descriptionResponse = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: descriptionPrompt }],
-        max_tokens: 50,
-      });
-      
-      const description = descriptionResponse.choices[0]?.message?.content?.trim() || `Descrição do artigo sobre ${topic}`;
-      console.log("API: Descrição gerada:", description);
+      if (prompt) {
+        // Lógica para prompt personalizado
+        console.log(`API: Gerando artigo ${i + 1} de ${count} com prompt personalizado...`);
+        finalPrompt = prompt.content.replace('{topic}', topic);
 
-      // Gerar conteúdo
-      console.log("API: Gerando conteúdo...");
-      const contentPrompt = prompt 
-        ? `${prompt.content}\n\nGere um artigo completo sobre: ${topic}. O artigo deve ser bem estruturado, mas NÃO deve incluir o título no início do texto. Comece diretamente com a introdução do artigo, sem repetir o título que já foi gerado anteriormente.`
-        : `Escreva um artigo completo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O artigo deve ser informativo, bem estruturado e fácil de entender para pessoas sem conhecimento técnico. NÃO inclua o título no início do texto. Comece diretamente com a introdução do artigo, sem repetir o título que já foi gerado anteriormente.`;
-      
-      const contentResponse = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: contentPrompt }],
-        max_tokens: 2000,
-      });
-      
-      const content = contentResponse.choices[0]?.message?.content?.trim() || `Conteúdo do artigo sobre ${topic}`;
+        const fullContentResponse = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [{ role: "user", content: finalPrompt }],
+          max_tokens: 4000,
+        });
+
+        const fullContent = fullContentResponse.choices[0]?.message?.content?.trim() || `Artigo sobre ${topic}`;
+        // Extrair título do h1, sendo flexível com maiúsculas/minúsculas e atributos
+        const titleMatch = fullContent.match(/<h1.*?>(.*?)<\/h1>/i);
+        title = titleMatch ? titleMatch[1] : `Artigo sobre ${topic}`;
+
+        // Extrair descrição do primeiro <p>
+        const descriptionMatch = fullContent.match(/<p.*?>(.*?)<\/p>/i);
+        description = descriptionMatch ? descriptionMatch[1] : fullContent.substring(0, 150);
+
+        // Remover o h1 do conteúdo principal para evitar duplicidade no HTML final
+        content = fullContent.replace(/<h1.*?>.*?<\/h1>/is, '').trim();
+
+      } else {
+        // Lógica de fallback (sem prompt personalizado)
+        console.log(`API: Gerando artigo ${i + 1} de ${count} com lógica padrão...`);
+        
+        // Gerar título
+        const titlePrompt = `Gere um título conciso e impactante para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título deve ter no máximo 8 palavras, ser atraente para iniciantes e NÃO deve começar com a palavra "Título" ou conter essa palavra em nenhum lugar do texto. O título deve ser uma única linha, sem descrição ou texto adicional.`;
+        const titleResponse = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [{ role: "user", content: titlePrompt }],
+          max_tokens: 50,
+        });
+        title = titleResponse.choices[0]?.message?.content?.trim() || `Artigo sobre ${topic}`;
+
+        // Gerar descrição
+        const descriptionPrompt = `Gere uma descrição curta e direta (máximo 100 caracteres) para um artigo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. A descrição deve ser impactante. A descrição deve ser uma única linha, sem incluir a palavra "Descrição" ou "Título".`;
+        const descriptionResponse = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [{ role: "user", content: descriptionPrompt }],
+          max_tokens: 50,
+        });
+        description = descriptionResponse.choices[0]?.message?.content?.trim() || `Descrição do artigo sobre ${topic}`;
+
+        // Gerar conteúdo
+        finalPrompt = `Escreva um artigo completo sobre Inteligência Artificial para iniciantes sobre o tema: ${topic}. O título do artigo é: "${title}". A descrição do artigo é: "${description}". O artigo deve ser informativo, bem estruturado e fácil de entender para pessoas sem conhecimento técnico. NÃO inclua o título no início do texto. Comece diretamente com a introdução do artigo, sem repetir o título que já foi gerado anteriormente.`;
+        const contentResponse = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [{ role: "user", content: finalPrompt }],
+          max_tokens: 2000,
+        });
+        content = contentResponse.choices[0]?.message?.content?.trim() || `Conteúdo do artigo sobre ${topic}`;
+      }
+
+      console.log("API: Título gerado/extraído:", title);
+      console.log("API: Descrição gerada/extraída:", description);
+      // Processar placeholders de imagem
+      const imagePlaceholderRegex = /\[IMAGEM:\s*"(.*?)"\]/g;
+      const matches = [...content.matchAll(imagePlaceholderRegex)];
+
+      if (matches.length > 0) {
+        const imageReplacements = await Promise.all(matches.map(async (match) => {
+          const placeholder = match[0];
+          const imageDescription = match[1];
+          const imageUrl = await getRandomImage(imageDescription);
+          return { placeholder, html: `<p><img src="${imageUrl}" alt="${imageDescription}" class="w-full h-auto rounded-lg my-4" /></p>` };
+        }));
+
+        imageReplacements.forEach(({ placeholder, html }) => {
+          content = content.replace(placeholder, html);
+        });
+      }
+
       console.log("API: Conteúdo gerado (primeiros 100 caracteres):", content.substring(0, 100));
+      console.log("API: Conteúdo HTML completo gerado pela IA:\n", content);
 
       // Gerar descrição da imagem
       console.log("API: Gerando descrição da imagem...");
-      const imagePrompt = `Gere uma descrição curta e específica para uma imagem que represente visualmente o tema: ${topic} em um artigo sobre Inteligência Artificial. 
-      A descrição deve ser focada em elementos visuais relacionados a IA, como:
-      - Circuitos neurais ou redes neurais
-      - Robôs ou assistentes virtuais
-      - Código ou algoritmos
-      - Interfaces de usuário modernas
-      - Visualizações de dados
-      - Elementos futuristas ou tecnológicos
-      
-      Evite descrições genéricas ou que não tenham relação direta com IA.`;
-      
+      const imagePrompt = `Gere uma descrição curta e específica para uma imagem que represente visualmente o tema: ${topic} em um artigo sobre Inteligência Artificial. A descrição deve ser focada em elementos visuais relacionados a IA.`;
       const imageResponse = await openai.chat.completions.create({
         model: "gpt-4",
         messages: [{ role: "user", content: imagePrompt }],
         max_tokens: 100,
       });
-      
       const imageDescription = imageResponse.choices[0]?.message?.content?.trim() || "Imagem representativa de IA";
       console.log("API: Descrição da imagem gerada:", imageDescription);
       
-      // Buscar imagem do Unsplash usando nossa função getRandomImage
+      // Buscar imagem do Unsplash
       const imageUrl = await getRandomImage(imageDescription);
       console.log("API: URL da imagem final:", imageUrl);
 
@@ -172,7 +191,7 @@ export default async function handler(
       const article = await prisma.article.create({
         data: {
           title: title,
-          slug: slugify(title),
+          slug: slugify(title) + '-' + Date.now(),
           description: description,
           content: content,
           imageUrl: imageUrl || DEFAULT_ARTICLE_IMAGE,
@@ -182,7 +201,7 @@ export default async function handler(
           published: true,
           aiGenerated: true,
           aiModel: "gpt-4",
-          aiPrompt: contentPrompt,
+          aiPrompt: finalPrompt,
           keywords: category.aiKeywords || [],
         },
       });

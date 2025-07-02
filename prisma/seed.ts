@@ -71,7 +71,8 @@ async function main() {
       website: 'https://iaeditor.dev',
       skills: ['Processamento de Linguagem Natural', 'Geração de Texto', 'Edição', 'SEO'],
       isAi: true,
-      aiModel: 'GPT-4'
+      aiModel: 'GPT-4',
+      signature: 'Atenciosamente, seu Assistente de IA para Conteúdo.'
     }
   ];
 

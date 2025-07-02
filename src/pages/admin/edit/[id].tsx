@@ -6,7 +6,12 @@ import { Article, Category } from '@prisma/client';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
-import RichTextEditor from '@/components/RichTextEditor';
+import dynamic from 'next/dynamic';
+
+const HtmlEditor = dynamic(() => import('@/components/HtmlEditor'), {
+  ssr: false,
+  loading: () => <p>Carregando editor...</p>,
+});
 
 interface EditArticlePageProps {
   article: Article & {
@@ -158,7 +163,7 @@ export default function EditArticle({ article, categories }: EditArticlePageProp
                     <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
                       Conteúdo
                     </label>
-                    <RichTextEditor
+                    <HtmlEditor
                       value={content}
                       onChange={setContent}
                     />

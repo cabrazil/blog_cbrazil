@@ -1,5 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
+import { JSDOM } from 'jsdom';
+import DOMPurify from 'dompurify';
+
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,6 +34,11 @@ export default async function handler(
       if (!article) {
         return res.status(404).json({ message: "Artigo não encontrado" });
       }
+
+      // Prevenir o cache da resposta
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
 
       return res.status(200).json(article);
     } catch (error) {
@@ -60,13 +70,16 @@ export default async function handler(
         return res.status(404).json({ message: "Artigo não encontrado" });
       }
 
+      // Limpar o conteúdo HTML para prevenir XSS
+      const cleanContent = purify.sanitize(content);
+
       // Atualizar o artigo
       const updatedArticle = await prisma.article.update({
         where: { id: articleId },
         data: {
           title,
           description,
-          content,
+          content: cleanContent, // Usar o conteúdo limpo
           imageUrl,
           categoryId,
           published: published || false,
@@ -83,6 +96,32 @@ export default async function handler(
       return res.status(200).json(updatedArticle);
     } catch (error) {
       console.error("Erro ao atualizar artigo:", error);
+      return res.status(500).json({ message: "Erro interno do servidor" });
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
+
+  // DELETE - Excluir artigo
+  else if (req.method === "DELETE") {
+    try {
+      // Verificar se o artigo existe
+      const existingArticle = await prisma.article.findUnique({
+        where: { id: articleId },
+      });
+
+      if (!existingArticle) {
+        return res.status(404).json({ message: "Artigo não encontrado" });
+      }
+
+      // Excluir o artigo
+      await prisma.article.delete({
+        where: { id: articleId },
+      });
+
+      return res.status(204).send(null); // 204 No Content é uma resposta comum para DELETE bem-sucedido
+    } catch (error) {
+      console.error("Erro ao excluir artigo:", error);
       return res.status(500).json({ message: "Erro interno do servidor" });
     } finally {
       await prisma.$disconnect();

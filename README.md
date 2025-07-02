@@ -1,7 +1,7 @@
-# SkyBlog: ChatGPT Post Generator
+# SGenBlog: ChatGPT Post Generator
 
 ## Sobre o Projeto
-O SkyBlog é uma plataforma moderna de blog que utiliza Inteligência Artificial para gerar conteúdo dinâmico sobre tecnologia. O projeto combina as mais recentes tecnologias web com IA para criar uma experiência única de leitura e geração de conteúdo.
+O SGenBlog é uma plataforma moderna de blog que utiliza Inteligência Artificial para gerar conteúdo dinâmico sobre tecnologia. O projeto combina as mais recentes tecnologias web com IA para criar uma experiência única de leitura e geração de conteúdo.
 
 ## Tecnologias Principais
 - **Frontend**: Next.js 14 com TypeScript

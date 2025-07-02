@@ -8,7 +8,6 @@ export const aiPrompts = [
     O artigo deve ter entre 800 e 1200 palavras.
 
     Instruções específicas:
-    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
     - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
     - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
@@ -27,7 +26,6 @@ export const aiPrompts = [
     O artigo deve ter entre 800 e 1200 palavras e ser adequado para desenvolvedores de nível intermediário.
 
     Instruções específicas:
-    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
     - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
     - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
@@ -46,7 +44,6 @@ export const aiPrompts = [
     O artigo deve ter entre 800 e 1200 palavras e ser adequado para profissionais de dados e analistas.
 
     Instruções específicas:
-    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
     - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
     - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
@@ -65,7 +62,6 @@ export const aiPrompts = [
     O artigo deve ter entre 800 e 1200 palavras e ser acessível para um público com interesse em tecnologia.
 
     Instruções específicas:
-    - Título: Deve ser conciso, impactante e ter no máximo 10 palavras
     - Descrição: Deve ser uma frase curta e direta, com no máximo 100 caracteres
     - Conteúdo: Mantenha o desenvolvimento detalhado e completo`,
     isActive: true,
@@ -81,14 +77,7 @@ export const aiPrompts = [
     O artigo deve oferecer conselhos práticos, dicas de desenvolvimento pessoal e profissional, e tendências do mercado.
     Inclua exemplos reais, estatísticas relevantes e recursos para aprofundamento no tema.
     Discuta desafios comuns e estratégias para superá-los.
-    O artigo deve ter entre 800 e 1200 palavras e ser motivacional e informativo.`,
-    isActive: true,
-    metadata: {
-      category: "Carreira em Tech",
-      targetAudience: "Profissionais de tecnologia em busca de desenvolvimento",
-      tone: "Orientativo e motivacional"
-    }
-  },
+    O artigo deve ter entre 800 e 1200 palavras e ser motivacional e informativo.`
   {
     name: "Prompt para Resumo de Artigo",
     content: `Crie um resumo conciso e informativo para o seguinte artigo sobre {topic}:
