@@ -27,7 +27,7 @@
     "lucide-react": "^0.487.0",
     "next": "^14.2.25",
     "next-auth": "^4.24.11",
-    "next-upload": "^0.0.30",
+    "next-upload": "^1.0.0",
     "node-fetch": "^2.7.0",
     "openai": "^4.29.0",
     "react": "^18",
