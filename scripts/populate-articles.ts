@@ -1,6 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const { slugify } = require('../src/utils/slugify');
-const { getRandomImage } = require('../src/config/unsplash');
+import { PrismaClient } from '@prisma/client';
+import { slugify } from '../src/utils/slugify';
+import { getRandomImage } from '../src/config/unsplash';
 
 const prisma = new PrismaClient();
 
