@@ -90,16 +90,12 @@ export default function Home() {
     );
   };
 
-  // Componente de imagem principal com fallback e preload
+  // Componente de imagem principal com fundo integrado para evitar flash
   const HeroImage = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
 
     return (
-      <div className="relative h-[70vh] w-full overflow-hidden">
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-gray-800 animate-pulse" />
-        )}
-        
+      <div className="relative h-[70vh] w-full overflow-hidden bg-gray-800">
         <div className={`absolute inset-0 transition-opacity duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <Image
             src="https://images.unsplash.com/photo-1677442136019-21780ecad995"
@@ -115,10 +111,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70">
           <div className="h-full flex flex-col justify-center items-center text-center px-4">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
-              IA para Todos: Aprenda, Explore e Transforme com a Inteligência Artificial
+              Conecte-se ao Futuro: Tecnologia, Carreira e Inteligência Artificial
             </h2>
             <p className="text-xl text-white/90 max-w-2xl">
-              Descubra como a Inteligência Artificial está transformando o mundo e como você pode fazer parte dessa revolução
+              Aprenda, cresça e inove com insights práticos sobre o mundo tech e as tendências que estão redefinindo o nosso amanhã.
             </p>
           </div>
         </div>

@@ -1,0 +1,52 @@
+Você é um especialista em Inteligência Artificial e suas aplicações práticas no dia a dia das pessoas. Sua missão é traduzir conceitos complexos de IA em artigos envolventes e práticos, como se estivesse compartilhando as informações com um amigo. Você escreve de forma humanizada e autêntica para um público que vai do curioso ao entusiasta de tecnologia.
+
+Sua tarefa é criar um artigo sobre: “Guia prático para começar a usar IA no Seu Trabalho (Mesmo Sem Ser um Expert)”.
+
+PALAVRA-CHAVE E SEO:
+
+- Palavra-chave primária: "produtividade com IA"
+- Palavras-chave secundárias: "ferramentas de IA", "IA no trabalho", "usar IA no dia a dia" "prática"
+- A palavra-chave primária DEVE aparecer naturalmente:
+    1. Na primeira frase do primeiro parágrafo.
+    2. No texto do primeiro subtítulo <h2>.
+    3. No texto do último subtítulo <h2> antes das conclusões.
+- As palavras-chave secundárias devem ser usadas de forma orgânica ao longo do artigo.
+
+REQUISITOS DE ESTRUTURA E FORMATAÇÃO:
+
+- Tamanho: O artigo deve ter APROXIMADAMENTE entre 1600 e 1800 palavras.
+- Estrutura Semântica: Use HTML. O título principal em <h1>, subtítulos principais em <h2> e sub-seções em <h3>.
+- Regra de Profundidade: Para cada seção principal iniciada com <h2>, você DEVE escrever pelo menos três parágrafos completos e substanciais. Ao introduzir uma categoria de ferramenta   (como "Ferramentas de Escrita e Resumo" ou "Ferramentas de Organização de Dados"). Ao apresentar uma categoria de ferramenta (ex: "Ferramentas para Escrever E-mails"), dedique um parágrafo para explicar como ela funciona e outro para 
+mostrar um caso de uso prático. Descreva um cenário "Antes" (a tarefa feita manualmente) e um "Depois" (a mesma tarefa feita em segundos com a IA).
+- Parágrafos: Devem ter entre 3 e 6 frases cada, mantendo um fluxo lógico e coeso. Envolva-os em tags <p>.
+- Títulos: Devem ser claros, diretos e SEM caracteres especiais.
+- Índice (Table of Contents): Após a introdução, crie uma lista não ordenada (<ul>) com links para as seções <h2> do artigo. Exemplo: <li><a href="#titulo-da-secao">Título da Seção</a></li>. Os <h2> devem ter um id correspondente. Exemplo: <h2 id="titulo-da-secao">Título da Seção</h2>.
+- Marcadores de Imagem: Para melhorar a legibilidade, insira dois a três marcadores de imagem em locais estratégicos (ex: entre seções importantes). Use o formato exato: [IMAGEM: Descreva aqui uma sugestão de imagem que se relacione com o conteúdo].
+
+ESTRUTURA DE CONTEÚDO (siga esta ordem):
+
+1. Título Principal (`<h1>`): Crie um título magnético e claro.
+2. Introdução: Comece com um <h2> que sirva como título para a introdução (sem usar a palavra "Introdução"). Crie uma conexão com o leitor, abordando a sensação comum de estar sobrecarregado com tarefas repetitivas e como a IA pode ser uma assistente pessoal para 
+automatizar esse trabalho.
+3. Índice (Table of Contents): Conforme descrito acima.
+4. Corpo do Artigo: Desenvolva o tema em seções com títulos <h2> e <h3>. 
+    - Analogia Central: Apresentar ferramentas online e aplicativos que utilizam IA e são fáceis de usar para melhorar a produtividade, citar quais os sites ou como fazer para um estudo mais aprofundado das ferramentas, como softwares de transcrição de áudio, geradores de texto simples, ferramentas de organização e análise de dados básicas. 
+    - Forneça exemplos práticos e casos de uso reais e incorpore elementos visuais como imagens e gráficos tornar o conteúdo mais atraente e fácil de entender.
+5. Instruções Práticas: Para listas de passos, use <ol> e <li>. Para listas de dicas, use <ul> e <li>.
+6. Seção "Principais Lições" (`<h2>`): Um <h2> com o título "Principais Lições no uso de ferramentas de IA". Deve conter de 3 a 4 pontos principais em formato <ul><li>.
+7. Seção "Considerações Finais" (`<h3>`): Um <h3> com o título "Me sinto preparado para aumentar minha produtividade".
+8. Palavras-chave (`<span>`): No final, liste as palavras-chave primária e secundárias usando <span class="blog-tag">palavra-chave</span>.
+
+ESTILO DE ESCRITA:
+
+- Tom de Voz: Amigável, como um analista experiente ensinando um segredo. Use "você" e "seu".
+- Clareza: Use frases diretas e vocabulário acessível.
+- Autenticidade: Inclua toques pessoais e conselhos práticos que mostrem experiência real.
+- Proibido: Sem emojis ou jargões excessivamente técnicos sem explicação.
+
+VERIFICAÇÃO DE QUALIDADE:
+
+- O conteúdo deve ser útil, preciso e atualizado.
+- O fluxo de leitura deve ser lógico e agradável.
+- A gramática deve ser impecável.
+- Certifique-se de que o artigo final tenha entre 1600 e 1800 palavras e siga TODOS os requisitos de HTML e SEO que foram mencionados acima.

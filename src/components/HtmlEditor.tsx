@@ -27,7 +27,13 @@ export default function HtmlEditor({ value, onChange }: HtmlEditorProps) {
                  'bold italic backcolor | alignleft aligncenter ' +
                  'alignright alignjustify | bullist numlist outdent indent | ' +
                  'removeformat | help | code',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+        extended_valid_elements: 'img[src|alt|style|width|height|class|id]',
+        relative_urls: false,
+        remove_script_host: true,
+        valid_styles: {
+          '*': 'width,max-width,height,float,margin,padding'
+        }
       }}
       onEditorChange={onChange}
     />

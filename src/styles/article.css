@@ -212,11 +212,13 @@ header nav a {
   color: #004499;
 }
 
-.article-content ul,
+.article-content ul, 
 .article-content ol {
   font-size: 16px;
   margin-bottom: 1.5em;
   padding-left: 2em;
+  list-style-type: disc; /* Adiciona os bullets */
+  list-style-position: inside; /* Alinha os bullets com o texto */
 }
 
 .article-content li {
@@ -277,4 +279,10 @@ header nav a {
   border: 0;
   border-top: 1px solid #ddd;
   margin: 2em 0;
+} 
+
+.image-resized {
+  max-width: 600px !important;
+  max-height: 400px !important;
+  margin: 1.5em auto !important; /* Centraliza a imagem */
 } 

@@ -70,8 +70,11 @@ export default async function handler(
         return res.status(404).json({ message: "Artigo não encontrado" });
       }
 
-      // Limpar o conteúdo HTML para prevenir XSS
-      const cleanContent = purify.sanitize(content);
+      // Limpar o conteúdo HTML para prevenir XSS, permitindo tags específicas
+      const cleanContent = purify.sanitize(content, {
+        ALLOWED_TAGS: ['h2', 'h3', 'p', 'ul', 'li', 'strong', 'em', 'a', 'br', 'img'],
+        ALLOWED_ATTR: ['href', 'rel', 'src', 'alt', 'id', 'class'],
+      });
 
       // Atualizar o artigo
       const updatedArticle = await prisma.article.update({
