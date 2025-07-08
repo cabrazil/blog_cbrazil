@@ -35,7 +35,7 @@ export default function NewsDetail({ article }: NewsDetailProps) {
         
         <main className="container mx-auto px-4 py-8">
           <article className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+            <h1 className="text-4xl font-bold mb-4 text-gray-900 bg-transparent">{article.title}</h1>
             <div className="flex items-center text-gray-600 mb-8">
               <span>{article.category.title}</span>
               <span className="mx-2">•</span>
