@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'DELETE') {
-    const { id } = req.query;
+    const { id: idString } = req.query;
+    const id = parseInt(idString as string);
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ error: 'ID inválido' });

@@ -248,12 +248,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   try {
     const [prompts, total] = await Promise.all([
       prisma.aiPrompt.findMany({
-        where: { ativo: true },
+        where: { isActive: true },
         orderBy: { name: 'asc' },
         skip,
         take: limit,
       }),
-      prisma.aiPrompt.count({ where: { ativo: true } })
+      prisma.aiPrompt.count({ where: { isActive: true } })
     ]);
 
     const totalPages = Math.ceil(total / limit);

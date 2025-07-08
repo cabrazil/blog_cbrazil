@@ -97,7 +97,7 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
                   key={article.id}
                   className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
-                  <Link href={`/artigos/${article.slug}`}>
+                  <Link href={`/news/${article.slug}`}>
                     <div className="flex flex-col md:flex-row gap-4 p-4">
                       <div className="w-full md:w-1/4">
                         <div className="relative h-32 w-full">

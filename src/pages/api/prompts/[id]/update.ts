@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {
-    const { id } = req.query;
+    const { id: idString } = req.query;
+    const id = parseInt(idString as string);
     const { name, content } = req.body;
 
     if (!id || typeof id !== 'string') {

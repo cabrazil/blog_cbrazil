@@ -1,10 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
+import { GetServerSideProps } from 'next'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 interface Command {
-  id: string
+  id: number
   name: string
   description: string
   content: string
@@ -20,6 +24,11 @@ export default function EditCommandPage({ command: initialCommand }: EditCommand
   const [command, setCommand] = useState(initialCommand)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Ensure command state is updated if initialCommand changes (e.g., during client-side navigation)
+  useEffect(() => {
+    setCommand(initialCommand);
+  }, [initialCommand]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,6 +54,11 @@ export default function EditCommandPage({ command: initialCommand }: EditCommand
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Handle case where command might be undefined initially (e.g., notFound from getServerSideProps)
+  if (!command) {
+    return <div>Comando não encontrado.</div>;
   }
 
   return (
@@ -140,4 +154,31 @@ export default function EditCommandPage({ command: initialCommand }: EditCommand
       </div>
     </>
   )
-} 
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.params!;
+
+  if (!id || typeof id !== 'string') {
+    return { notFound: true };
+  }
+
+  try {
+    const command = await prisma.aiPrompt.findUnique({
+      where: { id: parseInt(id as string) },
+    });
+
+    if (!command) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        command: JSON.parse(JSON.stringify(command)),
+      },
+    };
+  } catch (error) {
+    console.error('Erro ao buscar comando:', error);
+    return { notFound: true };
+  }
+};

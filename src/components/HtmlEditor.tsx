@@ -13,7 +13,7 @@ export default function HtmlEditor({ value, onChange }: HtmlEditorProps) {
   return (
     <Editor
       apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-      onInit={(evt, editor) => editorRef.current = editor}
+      onInit={(evt: any, editor: any) => editorRef.current = editor}
       initialValue={value}
       init={{
         height: 500,

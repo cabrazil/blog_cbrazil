@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { PrismaClient } from '@prisma/client';
 import { News } from "@/interfaces/news";
 import { getRandomImage } from '@/config/unsplash';
+import { slugify } from "@/utils/slugify";
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({
@@ -102,6 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const newArticle: News = {
       id: Date.now(), // ID único baseado no timestamp
       title: title,
+      slug: slugify(title),
       content: generateRandomParagraphs(10),
       description: generateRandomParagraph(),
       date: new Date().toDateString(),

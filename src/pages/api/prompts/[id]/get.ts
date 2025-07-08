@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const prompt = await prisma.aiPrompt.findUnique({
       where: { id: promptId },
       include: {
-        generations: {
+        generationLogs: {
           select: {
             id: true,
             createdAt: true,

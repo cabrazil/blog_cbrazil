@@ -10,5 +10,5 @@ export interface Article {
   aiKeywords: string[];
   aiPrompt: string;
   published: boolean;
-  category: string;
+  category: { title: string };
 } 

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Article } from "@/types";
+import { Article } from "@/types/article";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -28,7 +28,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
               })}
             </time>
             <span className="mx-2">•</span>
-            <span>{article.category}</span>
+            <span>{article.category.title}</span>
           </div>
           <h2 className="text-xl font-semibold mb-2 line-clamp-2">
             {article.title}

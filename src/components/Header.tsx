@@ -136,9 +136,9 @@ export default function Header() {
             <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
               Contato
             </Link>
-            <div className="flex items-center">
-              <AdminLogin />
-            </div>
+            <Link href="/api/auth/login?returnTo=/admin" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/admin') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
+              Área Restrita
+            </Link>
           </nav>
         </div>
       </div>

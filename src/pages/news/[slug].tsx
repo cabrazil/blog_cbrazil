@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { Article, Category } from '@prisma/client';
+import { Article, Category, Author } from '@prisma/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Header from "../../components/Header";
@@ -11,6 +11,7 @@ import prisma from "@/lib/prisma";
 
 type ArticleWithCategory = Article & {
   category: Category;
+  author: Author;
 };
 
 interface NewsDetailProps {
@@ -99,11 +100,11 @@ export default function NewsDetail({ article }: NewsDetailProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params!;
+  const { slug } = context.params!;
 
   try {
     const article = await prisma.article.findUnique({
-      where: { id: Number(id) },
+      where: { slug: slug as string },
       include: { category: true, author: true },
     });
 

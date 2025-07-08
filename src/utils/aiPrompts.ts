@@ -77,8 +77,15 @@ export const aiPrompts = [
     O artigo deve oferecer conselhos práticos, dicas de desenvolvimento pessoal e profissional, e tendências do mercado.
     Inclua exemplos reais, estatísticas relevantes e recursos para aprofundamento no tema.
     Discuta desafios comuns e estratégias para superá-los.
-    O artigo deve ter entre 800 e 1200 palavras e ser motivacional e informativo.`
-  {
+    O artigo deve ter entre 800 e 1200 palavras e ser motivacional e informativo.`,
+    isActive: true,
+    metadata: {
+      category: "Carreira em Tech",
+      targetAudience: "Profissionais de tecnologia",
+      tone: "Orientativo e motivacional"
+    }
+  },
+    {
     name: "Prompt para Resumo de Artigo",
     content: `Crie um resumo conciso e informativo para o seguinte artigo sobre {topic}:
     

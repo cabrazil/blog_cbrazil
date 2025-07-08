@@ -167,7 +167,7 @@ export default function Home() {
                 
                 return (
                   <article key={article.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <Link href={`/news/${article.id}`}>
+                    <Link href={`/news/${article.slug}`}>
                       <div className="relative h-48 w-full">
                         <ArticleImage
                           src={imageUrl}
