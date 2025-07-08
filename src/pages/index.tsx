@@ -150,7 +150,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
 
         <main className="flex-grow">
@@ -161,10 +161,10 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {news.slice(0, 6).map((article) => {
                 // Verificar se a URL da imagem é válida
-                const imageUrl = isValidImageUrl(article.imageUrl) 
-                  ? article.imageUrl 
+                const imageUrl = isValidImageUrl(article.imageUrl)
+                  ? article.imageUrl
                   : getDefaultImageUrl(article.title);
-                
+
                 return (
                   <article key={article.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <Link href={`/news/${article.slug}`}>
