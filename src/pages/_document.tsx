@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
-    <Html lang="pt-BR">
+    <Html lang="pt-BR" className="h-full">
       <Head>
         {/* Favicon */}
         <link rel="icon" type="image/png" href="/favicon.png" />
@@ -33,7 +33,7 @@ export default function Document() {
           rel="stylesheet"
         />
       </Head>
-      <body>
+      <body className="h-full">
         <Main />
         <NextScript />
       </body>
