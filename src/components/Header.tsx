@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
-import AdminLogin from './AdminLogin'
 
 interface Category {
   id: string
@@ -12,10 +11,10 @@ interface Category {
 
 export default function Header() {
   const [categories, setCategories] = useState<Category[]>([])
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const closeTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     fetch('/api/categories-with-articles')
@@ -23,125 +22,130 @@ export default function Header() {
       .then(data => setCategories(data))
   }, [])
 
-  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setMobileMenuOpen(false)
+    }
+    router.events.on('routeChangeComplete', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false)
+        setCategoryDropdownOpen(false)
       }
     }
-    if (dropdownOpen) {
+    if (isCategoryDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside)
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside)
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [dropdownOpen])
+  }, [isCategoryDropdownOpen])
 
-  // Função para limpar o path
   const cleanPath = (path: string) => path.split('?')[0].replace(/\/$/, '') || '/';
-
-  // Função para verificar se o link está ativo
   const isActive = (href: string) => {
     const current = cleanPath(router.asPath);
     const target = cleanPath(href);
-    if (target === '/') {
-      return current === '/';
-    }
+    if (target === '/') return current === '/';
     return current === target || current.startsWith(target + '/');
   }
 
+  const navLinks = (
+    <>
+      <Link href="/" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
+        Início
+      </Link>
+      
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setCategoryDropdownOpen(v => !v)}
+          className={`w-full text-left md:text-center py-2 md:py-0 text-gray-600 hover:text-gray-900 flex justify-between items-center md:inline-flex${isActive('/categories') ? ' font-bold text-blue-600' : ''}`}
+        >
+          Categorias
+          <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        
+        {isCategoryDropdownOpen && (
+          <div className="md:absolute md:left-0 mt-2 w-full md:w-64 rounded-md md:shadow-lg bg-white md:border md:border-gray-200 z-20">
+            <div className="pl-4 md:pl-0 py-2 space-y-2 md:space-y-0">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/categories/${cat.slug}`}
+                  className={`block text-gray-500 hover:text-blue-700 md:px-4 md:py-2 md:hover:bg-gray-100${router.asPath.startsWith(`/categories/${cat.slug}`) ? ' font-semibold text-blue-600' : ''}`}
+                >
+                  {cat.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Link href="/sobre" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
+        Sobre
+      </Link>
+      <Link href="/contato" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
+        Contato
+      </Link>
+      <Link href="/api/auth/login?returnTo=/admin" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
+        Área Restrita
+      </Link>
+    </>
+  );
+
   return (
-    <header className="py-8 border-b border-gray-200 bg-white">
+    <header className="py-4 md:py-6 border-b border-gray-200 bg-white sticky top-0 z-30">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-90">
-            <div className="relative w-[220px] h-[60px]">
+          <Link href="/" className="flex-shrink-0">
+            <div className="relative w-[180px] h-[50px] md:w-[220px] md:h-[60px]">
               <Image 
                 src="/images/cbrazil_logo.png" 
                 alt="cbrazil.com Logo" 
                 fill
                 style={{ objectFit: 'contain' }}
                 priority
-                sizes="(max-width: 768px) 100vw, 220px"
+                sizes="(max-width: 768px) 180px, 220px"
               />
             </div>
           </Link>
-          <nav className="flex items-center space-x-8">
-            <Link href="/" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
-              Início
-            </Link>
-            <div 
-              className="relative"
-              onMouseEnter={() => {
-                if (closeTimeout.current) clearTimeout(closeTimeout.current)
-                setDropdownOpen(true)
-              }}
-              onMouseLeave={() => {
-                closeTimeout.current = setTimeout(() => setDropdownOpen(false), 250)
-              }}
-              ref={dropdownRef}
+
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks}
+          </div>
+
+          <div className="md:hidden">
+            <button 
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
             >
-              <button
-                className={`text-gray-600 hover:text-gray-900 pb-1 flex items-center uppercase`}
-                role="button"
-                aria-haspopup="true"
-                aria-expanded={dropdownOpen}
-                tabIndex={0}
-                type="button"
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setDropdownOpen(v => !v);
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setDropdownOpen(v => !v);
-                  }
-                  if (e.key === 'Escape') {
-                    setDropdownOpen(false);
-                  }
-                }}
-              >
-                CATEGORIAS
-                <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              {dropdownOpen && (
-                <div className="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-20 animate-fade-in pt-2" role="menu">
-                  <ul className="py-2">
-                    {categories.map((cat) => (
-                      <li key={cat.id}>
-                        <Link
-                          href={`/categories/${cat.slug}`}
-                          className={`block px-6 py-2 text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition-colors${router.asPath.startsWith(`/categorias/${cat.slug}`) ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}
-                          role="menuitem"
-                          tabIndex={0}
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          {cat.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {isMobileMenuOpen ? (
+                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
               )}
-            </div>
-            <Link href="/sobre" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/sobre') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
-              Sobre
-            </Link>
-            <Link href="/contato" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/contato') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
-              Contato
-            </Link>
-            <Link href="/api/auth/login?returnTo=/admin" className={`text-gray-600 hover:text-gray-900 pb-1${isActive('/admin') ? ' border-b-2 border-blue-600' : ''} hover:border-b-2 hover:border-blue-600`}>
-              Área Restrita
-            </Link>
-          </nav>
+            </button>
+          </div>
         </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden" id="mobile-menu">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {navLinks}
+          </div>
+        </div>
+      )}
     </header>
   )
 } 
