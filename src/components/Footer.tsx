@@ -65,7 +65,7 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Seção Principal */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e Descrição */}
           <div className="col-span-1">
             <Link href="/" className="block mb-4">
@@ -78,8 +78,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-gray-600 mb-6">
-              Blog sobre Inteligência Artificial, Tecnologias emergentes 
-              e Carreira em Tech.
+              Um laboratório prático sobre Inteligência Artificial, Engenharia de Prompts e o futuro da tecnologia.
             </p>
             {/* Redes Sociais */}
             <div className="flex space-x-4">
@@ -119,11 +118,6 @@ export default function Footer() {
                   Contato
                 </Link>
               </li>
-              <li>
-                <Link href="/privacidade" className="text-gray-600 hover:text-gray-900">
-                  Políticas de Cookies e Privacidade
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -152,6 +146,35 @@ export default function Footer() {
                 ))}
               </ul>
             )}
+          </div>
+
+          {/* Termos e Políticas */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+              Termos e Políticas
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/termos-de-uso" className="text-gray-600 hover:text-gray-900">
+                  Termos de Uso
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacidade#cookies" className="text-gray-600 hover:text-gray-900">
+                  Política de Cookies
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacidade" className="text-gray-600 hover:text-gray-900">
+                  Política de Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link href="/disclaimer" className="text-gray-600 hover:text-gray-900">
+                  Disclaimer
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 

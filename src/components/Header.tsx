@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
+import SearchBar from './SearchBar' // Importa o SearchBar
 
 interface Category {
   id: string
@@ -56,14 +57,14 @@ export default function Header() {
 
   const navLinks = (
     <>
-      <Link href="/" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
         Início
       </Link>
       
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setCategoryDropdownOpen(v => !v)}
-          className={`w-full text-left md:text-center py-2 md:py-0 text-gray-600 hover:text-gray-900 flex justify-between items-center md:inline-flex${isActive('/categories') ? ' font-bold text-blue-600' : ''}`}
+          className={`w-full text-left md:text-center py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900 flex justify-between items-center md:inline-flex${isActive('/categories') ? ' font-bold text-blue-600' : ''}`}
         >
           Categorias
           <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -86,13 +87,13 @@ export default function Header() {
         )}
       </div>
 
-      <Link href="/sobre" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/sobre" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
         Sobre
       </Link>
-      <Link href="/contato" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/contato" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
         Contato
       </Link>
-      <Link href="/api/auth/login?returnTo=/admin" className={`block md:inline-block py-2 md:py-0 text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/api/auth/login?returnTo=/admin" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
         Área Restrita
       </Link>
     </>
@@ -100,7 +101,7 @@ export default function Header() {
 
   return (
     <header className="py-4 md:py-6 border-b border-gray-200 bg-white sticky top-0 z-30">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex-shrink-0">
             <div className="relative w-[180px] h-[50px] md:w-[220px] md:h-[60px]">
@@ -115,32 +116,45 @@ export default function Header() {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks}
-          </div>
+          {/* Navegação Principal */}
+          <nav className="hidden md:flex items-center flex-grow justify-center">
+            <div className="flex items-center space-x-8">
+              {navLinks}
+            </div>
+          </nav>
 
-          <div className="md:hidden">
-            <button 
-              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-            >
-              {isMobileMenuOpen ? (
-                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-              )}
-            </button>
+          {/* Barra de Busca e Botão de Menu */}
+          <div className="flex items-center">
+            <div className="hidden md:block ml-6">
+              <SearchBar />
+            </div>
+
+            <div className="md:hidden ml-4">
+              <button 
+                onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle menu"
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              >
+                {isMobileMenuOpen ? (
+                  <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {isMobileMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
+          <div className="px-4 pt-4 pb-3">
+            <SearchBar />
+          </div>
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks}
           </div>

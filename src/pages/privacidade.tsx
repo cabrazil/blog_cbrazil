@@ -19,6 +19,7 @@ export default function Privacidade() {
             <p>Este site utiliza cookies de publicidade incluindo o Google, usam cookies para veicular anúncios com base em visitas anteriores do usuário ao seu website ou a outros websites.</p>
             <p>Com o uso de cookies de publicidade, o Google e os parceiros podem veicular anúncios para os usuários com base nas visitas feitas aos seus sites e/ou a outros sites na Internet.</p>
             <p>Você pode desativar a publicidade personalizada acessando as <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Configurações de anúncios</a>. Como alternativa, você pode a acessar o site <a href="http://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">www.aboutads.info</a> para desativar o uso de cookies de publicidade personalizada de terceiros.</p>
+            <h2 id="cookies">Política de Cookies</h2>
             <p>Todas as suas informações pessoais recolhidas, serão usadas para o ajudar a tornar a sua visita no nosso site a mais produtiva e agradável possível.</p>
             <p>A garantia da confidencialidade dos dados pessoais dos utilizadores do nosso site é importante para o <strong>cbrazil.com</strong></p>
             <p>Todas as informações pessoais relativas a membros, assinantes, clientes ou visitantes que usem o <strong>cbrazil.com</strong> serão tratadas em concordância com a Lei da Proteção de Dados Pessoais de 26 de outubro de 1998 (Lei n.º 67/98).</p>

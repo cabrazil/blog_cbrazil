@@ -111,10 +111,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70">
           <div className="h-full flex flex-col justify-center items-center text-center px-4">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
-              Conecte-se ao Futuro: Tecnologia, Carreira e Inteligência Artificial
+              Inteligência Artificial na Prática: Da Curiosidade ao Resultado.
             </h2>
-            <p className="text-xl text-white/90 max-w-2xl">
-              Aprenda, cresça e inove com insights práticos sobre o mundo tech e as tendências que estão redefinindo o nosso amanhã.
+            <p className="text-xl text-white/90 max-w-3xl">
+              Mais que um blog, um laboratório. Aprenda a criar prompts eficientes, escolher as ferramentas certas e aplicar a IA para resolver problemas reais e impulsionar sua carreira.
             </p>
           </div>
         </div>

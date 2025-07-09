@@ -45,7 +45,7 @@ export default function Sobre() {
               Olá, sou Carlos Brazil, um profissional de Tecnologia da Informação com mais de 35 anos de experiência, 
               e um entusiasta da Inteligência Artificial.<br />
               Já sou 60+, casado com a Cris, e sou orgulhoso pai do Vinicius, da Vanessa e do Rodolpho.<br />
-              Minha carreira que iniciou como programador, me levou depois para atuar como gestor de TI e Projetos
+              Minha carreira que iniciou como programador, me levou depois para atuar como gestor de TI, em seguida para Projetos em TI,
               como implantações de ERP, integração de sistemas corporativos, desenvolvimento de software e segurança da informação.<br />
               Sou graduado em Tecnologia em Processamento de Dados pelo Mackenzie, possuo MBA em Gestão de Projetos pela FIAP 
               e complementei minha formação com um Bootcamp FullStack pela Rocketseat.
