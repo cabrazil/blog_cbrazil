@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useEffect, useState } from 'react';
-import { Article } from '@prisma/client';
+import { Article } from '@/types/article'; // Importa o tipo Article do seu arquivo local
 import ArticleCard from '../components/ArticleCard';
 
 export default function SearchPage() {

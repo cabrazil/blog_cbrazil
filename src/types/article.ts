@@ -1,14 +1,18 @@
+import { Category, Tag, Author } from '@prisma/client';
+
 export interface Article {
-  id: string;
+  id: number;
   title: string;
   slug: string;
-  createdAt: string;
-  updatedAt: string;
   description: string;
   imageUrl: string;
-  parentId: string | null;
-  aiKeywords: string[];
-  aiPrompt: string;
+  content: string;
+  createdAt: string; 
+  updatedAt: string;
   published: boolean;
-  category: { title: string };
+  viewCount: number;
+  likeCount: number;
+  author: Author;
+  category: Category;
+  tags: Tag[];
 } 
