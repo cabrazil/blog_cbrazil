@@ -4,8 +4,7 @@ export default function Document() {
   return (
     <Html lang="pt-BR" className="h-full">
       <Head>
-        {/* Viewport */}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
 
         {/* Favicon */}
         <link rel="icon" type="image/png" href="/favicon.png" />

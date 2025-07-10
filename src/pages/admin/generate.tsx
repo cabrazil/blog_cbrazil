@@ -101,7 +101,7 @@ export default function GenerateArticle({ categories, authors }: GeneratePagePro
       
       // Redirecionar para o artigo após 2 segundos
       setTimeout(() => {
-        router.push(`/news/${data.articles[0].id}`);
+        router.push(`/news/${data.articles[0].slug}`);
       }, 2000);
     } catch (err) {
       console.error("Erro detalhado:", err);

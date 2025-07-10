@@ -48,7 +48,8 @@ export default async function handler(
           where: { id: promptId },
         });
 
-        return res.status(204).end();
+        res.status(204).end();
+        break;
 
       default:
         res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
