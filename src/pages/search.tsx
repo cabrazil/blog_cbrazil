@@ -18,7 +18,7 @@ export default function SearchPage() {
       fetch(`/api/ai-articles/search?q=${encodeURIComponent(q as string)}`)
         .then((res) => res.json())
         .then((data) => {
-          setArticles(data);
+          setArticles(data.articles);
           setLoading(false);
         })
         .catch((err) => {
