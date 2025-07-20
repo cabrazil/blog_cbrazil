@@ -25,6 +25,7 @@ export default async function handler(
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
         where: {
+          blogId: 1, // Adicionado para multi-tenant
           // Se não for admin, mostrar apenas artigos publicados
           ...(isAdmin ? {} : { published: true }),
           // Se for para excluir artigos da home, excluir os 6 mais recentes
@@ -32,7 +33,7 @@ export default async function handler(
             NOT: {
               id: {
                 in: await prisma.article.findMany({
-                  where: { published: true },
+                  where: { published: true, blogId: 1 }, // Adicionado para multi-tenant
                   orderBy: { createdAt: 'desc' },
                   take: 6,
                   select: { id: true }
@@ -53,12 +54,13 @@ export default async function handler(
       }),
       prisma.article.count({
         where: {
+          blogId: 1, // Adicionado para multi-tenant
           ...(isAdmin ? {} : { published: true }),
           ...(excludeHomeArticles ? {
             NOT: {
               id: {
                 in: await prisma.article.findMany({
-                  where: { published: true },
+                  where: { published: true, blogId: 1 }, // Adicionado para multi-tenant
                   orderBy: { createdAt: 'desc' },
                   take: 6,
                   select: { id: true }

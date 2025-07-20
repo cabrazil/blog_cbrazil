@@ -15,12 +15,14 @@ export default async function handler(
     // Construir a query de busca
     const where: any = {
       published: true,
+      blogId: 1, // Adicionado para multi-tenant
     };
     
     // Filtrar por categoria
     if (category) {
       const categoryObj = await prisma.category.findFirst({
         where: {
+          blogId: 1, // Adicionado para multi-tenant
           OR: [
             { id: isNaN(Number(category)) ? undefined : Number(category) },
             { slug: String(category) },

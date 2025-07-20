@@ -177,8 +177,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
-    const prompt = await prisma.aiPrompt.findUnique({
-      where: { id },
+    const prompt = await prisma.aiPrompt.findFirst({
+      where: { 
+        id,
+        blogId: 1, // Adicionado para multi-tenant
+      },
     })
 
     if (!prompt) {

@@ -256,6 +256,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const [articles, prompts] = await Promise.all([
       prisma.article.findMany({
+        where: { blogId: 1 }, // Adicionado para multi-tenant
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
@@ -267,6 +268,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         },
       }),
       prisma.aiPrompt.findMany({
+        where: { blogId: 1 }, // Adicionado para multi-tenant
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,

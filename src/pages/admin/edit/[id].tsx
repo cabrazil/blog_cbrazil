@@ -281,9 +281,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }
 
   try {
-    const article = await prisma.article.findUnique({
+    const article = await prisma.article.findFirst({
       where: {
         id: parseInt(id),
+        blogId: 1, // Adicionado para multi-tenant
       },
       include: {
         author: true,
@@ -298,6 +299,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     }
 
     const categories = await prisma.category.findMany({
+      where: { blogId: 1 }, // Adicionado para multi-tenant
       orderBy: { title: 'asc' },
     });
 

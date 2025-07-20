@@ -286,15 +286,18 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
   try {
     const categories = await prisma.category.findMany({
+      where: { blogId: 1 }, // Adicionado para multi-tenant
       orderBy: { title: 'asc' },
     });
 
     // Usando uma abordagem alternativa para acessar o modelo aiPrompt
     const prompts = await (prisma as any).aiPrompt.findMany({
+      where: { blogId: 1 }, // Adicionado para multi-tenant
       orderBy: { name: 'asc' },
     });
 
     const authors = await prisma.author.findMany({
+      where: { blogId: 1 }, // Adicionado para multi-tenant
       orderBy: { name: 'asc' },
     });
 

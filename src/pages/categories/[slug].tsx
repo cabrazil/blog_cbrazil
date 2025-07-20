@@ -175,9 +175,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
   const limit = 6;
 
   try {
-    const category = await prisma.category.findUnique({
+    const category = await prisma.category.findFirst({
       where: {
         slug,
+        blogId: 1, // Adicionado para multi-tenant
       },
     });
 
@@ -194,6 +195,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       where: {
         categoryId: category.id,
         published: true,
+        blogId: 1, // Adicionado para multi-tenant
       },
     });
 
@@ -203,6 +205,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       where: {
         categoryId: category.id,
         published: true,
+        blogId: 1, // Adicionado para multi-tenant
       },
       include: {
         author: {

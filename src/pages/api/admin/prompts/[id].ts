@@ -15,8 +15,8 @@ export default async function handler(
   try {
     switch (req.method) {
       case "GET":
-        const prompt = await prisma.aiPrompt.findUnique({
-          where: { id: promptId },
+        const prompt = await prisma.aiPrompt.findFirst({
+          where: { id: promptId, blogId: 1 },
         });
 
         if (!prompt) {
@@ -33,7 +33,7 @@ export default async function handler(
         }
 
         const updatedPrompt = await prisma.aiPrompt.update({
-          where: { id: promptId },
+          where: { id: promptId, blogId: 1 },
           data: {
             name,
             content,
@@ -45,7 +45,7 @@ export default async function handler(
 
       case "DELETE":
         await prisma.aiPrompt.delete({
-          where: { id: promptId },
+          where: { id: promptId, blogId: 1 },
         });
 
         res.status(204).end();

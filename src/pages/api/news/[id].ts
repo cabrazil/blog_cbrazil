@@ -21,9 +21,10 @@ export default async function handler(
   // GET - Buscar artigo
   if (req.method === "GET") {
     try {
-      const article = await prisma.article.findUnique({
+      const article = await prisma.article.findFirst({
         where: {
           id: articleId,
+          blogId: 1, // Adicionado para multi-tenant
         },
         include: {
           author: true,
@@ -62,8 +63,8 @@ export default async function handler(
       }
 
       // Verificar se o artigo existe
-      const existingArticle = await prisma.article.findUnique({
-        where: { id: articleId },
+      const existingArticle = await prisma.article.findFirst({
+        where: { id: articleId, blogId: 1 },
       });
 
       if (!existingArticle) {
@@ -78,7 +79,7 @@ export default async function handler(
 
       // Atualizar o artigo
       const updatedArticle = await prisma.article.update({
-        where: { id: articleId },
+        where: { id: articleId, blogId: 1 }, // Adicionado para multi-tenant
         data: {
           title,
           description,
@@ -109,8 +110,8 @@ export default async function handler(
   else if (req.method === "DELETE") {
     try {
       // Verificar se o artigo existe
-      const existingArticle = await prisma.article.findUnique({
-        where: { id: articleId },
+      const existingArticle = await prisma.article.findFirst({
+        where: { id: articleId, blogId: 1 },
       });
 
       if (!existingArticle) {
@@ -119,7 +120,7 @@ export default async function handler(
 
       // Excluir o artigo
       await prisma.article.delete({
-        where: { id: articleId },
+        where: { id: articleId, blogId: 1 }, // Adicionado para multi-tenant
       });
 
       return res.status(204).send(null); // 204 No Content é uma resposta comum para DELETE bem-sucedido

@@ -47,9 +47,10 @@ export default async function handler(
 
     // Buscar a categoria selecionada
     console.log("API: Verificando categoria...");
-    const category = await prisma.category.findUnique({
+    const category = await prisma.category.findFirst({
       where: {
         id: categoryId,
+        blogId: 1, // Adicionado para multi-tenant
       },
     });
 
@@ -61,9 +62,10 @@ export default async function handler(
 
     // Buscar o autor selecionado
     console.log("API: Verificando autor...");
-    const author = await prisma.author.findUnique({
+    const author = await prisma.author.findFirst({
       where: {
         id: authorId,
+        blogId: 1, // Adicionado para multi-tenant
       },
     });
 
@@ -77,9 +79,10 @@ export default async function handler(
     let prompt = null;
     if (promptId) {
       console.log("API: Buscando prompt:", promptId);
-      prompt = await prisma.aiPrompt.findUnique({
+      prompt = await prisma.aiPrompt.findFirst({
         where: {
           id: promptId,
+          blogId: 1, // Adicionado para multi-tenant
         },
       });
       console.log("API: Prompt encontrado:", prompt);
@@ -203,6 +206,7 @@ export default async function handler(
           aiModel: "gpt-4",
           aiPrompt: finalPrompt,
           keywords: category.aiKeywords || [],
+          blogId: 1, // Adicionado para multi-tenant
         },
       });
       console.log("API: Artigo criado:", article);

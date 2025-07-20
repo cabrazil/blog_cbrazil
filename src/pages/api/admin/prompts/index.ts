@@ -64,7 +64,8 @@ async function handleCreatePrompt(req: NextApiRequest, res: NextApiResponse) {
         name,
         content,
         isActive,
-        metadata
+        metadata,
+        blogId: 1, // Adicionado para multi-tenant
       }
     });
     

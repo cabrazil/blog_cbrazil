@@ -8,28 +8,53 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// Novo modelo para representar cada Blog
+model Blog {
+  id               Int      @id @default(autoincrement())
+  name             String   // Ex: "Blog de Tecnologia", "Cozinha da Vovó"
+  slug             String   @unique // Ex: "tecnologia", "cozinha"
+  domain           String?  @unique // Ex: "tecnologia.meusite.com"
+  themeSettings    Json?    // Configurações de front-end: cores, logo, etc.    // Configurações de front-end: cores, logo, etc.
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relações: um Blog tem muitos...
+  articles         Article[]
+  authors          Author[]
+  categories       Category[]
+  tags             Tag[]
+  comments         Comment[]
+  aiPrompts        AiPrompt[]
+  aiGenerationLogs AiGenerationLog[]
+}
+
 model Article {
-  id               Int               @id @default(autoincrement())
-  title            String
-  content          String
-  description      String
-  date             DateTime          @default(now())
-  imageUrl         String
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  categoryId       Int
-  authorId         Int
-  userId           Int?
-  slug             String            @unique
-  published        Boolean           @default(false)
-  viewCount        Int               @default(0)
-  likeCount        Int               @default(0)
-  metadata         Json?
-  keywords         String[]
-  aiConfidence     Float?
-  aiGenerated      Boolean           @default(false)
-  aiModel          String?
-  aiPrompt         String?
+  id            Int      @id @default(autoincrement())
+  title         String
+  content       String
+  description   String
+  date          DateTime @default(now())
+  imageUrl      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  categoryId    Int
+  authorId      Int
+  userId        Int?
+  slug          String   @unique
+  published     Boolean  @default(false)
+  viewCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  metadata      Json?
+  keywords      String[]
+  aiConfidence  Float?
+  aiGenerated   Boolean  @default(false)
+  aiModel       String?
+  aiPrompt      String?
+
+  // Relação com Blog
+  blogId        Int
+  blog          Blog     @relation(fields: [blogId], references: [id])
+
   aiGenerationLogs AiGenerationLog[]
   author           Author            @relation(fields: [authorId], references: [id])
   category         Category          @relation(fields: [categoryId], references: [id])
@@ -44,6 +69,7 @@ model Article {
   @@index([userId])
   @@index([date])
   @@index([aiGenerated])
+  @@index([blogId])
 }
 
 model Author {
@@ -61,8 +87,15 @@ model Author {
   skills    String[]
   aiModel   String?
   isAi      Boolean   @default(false)
+
+  // Relação com Blog
+  blogId    Int
+  blog      Blog      @relation(fields: [blogId], references: [id])
+
   articles  Article[]
   comments  Comment[]
+
+  @@index([blogId])
 }
 
 model Category {
@@ -76,9 +109,16 @@ model Category {
   parentId    Int?
   aiKeywords  String[]
   aiPrompt    String?
+
+  // Relação com Blog
+  blogId      Int
+  blog        Blog       @relation(fields: [blogId], references: [id])
+
   articles    Article[]
   parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryToCategory")
+
+  @@index([blogId])
 }
 
 model Tag {
@@ -89,7 +129,14 @@ model Tag {
   updatedAt DateTime  @updatedAt
   color     String?
   aiRelated Boolean   @default(false)
+
+  // Relação com Blog
+  blogId    Int
+  blog      Blog      @relation(fields: [blogId], references: [id])
+
   articles  Article[] @relation("ArticleToTag")
+
+  @@index([blogId])
 }
 
 model Comment {
@@ -105,13 +152,21 @@ model Comment {
   ipAddress   String?
   aiGenerated Boolean   @default(false)
   aiModel     String?
+
+  // Relação com Blog
+  blogId      Int
+  blog        Blog      @relation(fields: [blogId], references: [id])
+
   article     Article   @relation(fields: [articleId], references: [id])
   author      Author?   @relation(fields: [authorId], references: [id])
   parent      Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
   children    Comment[] @relation("CommentToComment")
   user        User?     @relation(fields: [userId], references: [id])
+
+  @@index([blogId])
 }
 
+// User permanece global, sem relação direta com um único blog.
 model User {
   id            Int       @id @default(autoincrement())
   name          String
@@ -134,7 +189,14 @@ model AiPrompt {
   updatedAt      DateTime          @updatedAt
   isActive       Boolean           @default(true)
   metadata       Json?
+
+  // Relação com Blog
+  blogId         Int
+  blog           Blog              @relation(fields: [blogId], references: [id])
+
   generationLogs AiGenerationLog[]
+
+  @@index([blogId])
 }
 
 model AiGenerationLog {
@@ -147,6 +209,13 @@ model AiGenerationLog {
   tokensUsed Int?
   cost       Float?
   duration   Int?
+
+  // Relação com Blog
+  blogId     Int
+  blog       Blog     @relation(fields: [blogId], references: [id])
+
   article    Article? @relation(fields: [articleId], references: [id])
   prompt     AiPrompt @relation(fields: [promptId], references: [id])
+
+  @@index([blogId])
 }

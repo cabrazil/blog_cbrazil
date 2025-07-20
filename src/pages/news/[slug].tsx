@@ -103,8 +103,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params!;
 
   try {
-    const article = await prisma.article.findUnique({
-      where: { slug: slug as string },
+    const article = await prisma.article.findFirst({
+      where: { 
+        slug: slug as string,
+        blogId: 1, // Adicionado para multi-tenant
+      },
       include: { category: true, author: true },
     });
 
