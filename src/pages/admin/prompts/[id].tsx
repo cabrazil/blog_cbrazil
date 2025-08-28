@@ -177,10 +177,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
+    const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
+    
     const prompt = await prisma.aiPrompt.findFirst({
       where: { 
         id,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
     })
 

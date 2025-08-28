@@ -90,7 +90,7 @@ export default function ArticlesPage() {
 
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <div className="bg-gray-100">
-          <Header />
+          <Header blogId={1} />
         </div>
 
         <main className="container mx-auto px-4 py-8 max-w-4xl flex-grow">
@@ -171,7 +171,7 @@ export default function ArticlesPage() {
         </main>
 
         <div className="bg-gray-100">
-          <Footer />
+          <Footer blogId={1} />
         </div>
       </div>
     </>

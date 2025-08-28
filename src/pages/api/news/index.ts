@@ -22,10 +22,12 @@ export default async function handler(
     const excludeHomeArticles = req.query.excludeHome === "true";
     
     // Buscar artigos com paginação
+    const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
+
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
         where: {
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId,
           // Se não for admin, mostrar apenas artigos publicados
           ...(isAdmin ? {} : { published: true }),
           // Se for para excluir artigos da home, excluir os 6 mais recentes
@@ -33,7 +35,7 @@ export default async function handler(
             NOT: {
               id: {
                 in: await prisma.article.findMany({
-                  where: { published: true, blogId: 1 }, // Adicionado para multi-tenant
+                  where: { published: true, blogId: blogId },
                   orderBy: { createdAt: 'desc' },
                   take: 6,
                   select: { id: true }
@@ -54,13 +56,13 @@ export default async function handler(
       }),
       prisma.article.count({
         where: {
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId,
           ...(isAdmin ? {} : { published: true }),
           ...(excludeHomeArticles ? {
             NOT: {
               id: {
                 in: await prisma.article.findMany({
-                  where: { published: true, blogId: 1 }, // Adicionado para multi-tenant
+                  where: { published: true, blogId: blogId },
                   orderBy: { createdAt: 'desc' },
                   take: 6,
                   select: { id: true }

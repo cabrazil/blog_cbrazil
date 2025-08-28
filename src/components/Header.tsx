@@ -10,18 +10,92 @@ interface Category {
   slug: string
 }
 
-export default function Header() {
+interface HeaderProps {
+  blogId?: number;
+}
+
+interface ThemeSettings {
+  branding?: {
+    logoLight?: string;
+    logoDark?: string;
+    siteTitle?: string;
+    favicon?: string;
+  };
+  colors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+  };
+}
+
+export default function Header({ blogId = 1 }: HeaderProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings | null>(null)
   const router = useRouter()
 
+  // Configuração padrão de fallback
+  const getDefaultConfig = (blogId: number) => {
+    switch (blogId) {
+      case 1:
+        return {
+          logo: '/images/cbrazil_logo.png',
+          alt: 'cbrazil.com Logo',
+          title: 'cbrazil.com'
+        }
+      case 2:
+        return {
+          logo: '/images/blog_casa_logo.png',
+          alt: 'Blog da Casa Logo', 
+          title: 'Blog da Casa'
+        }
+      default:
+        return {
+          logo: '/images/cbrazil_logo.png',
+          alt: 'Logo',
+          title: 'Blog'
+        }
+    }
+  }
+
+  // Configuração dinâmica baseada em themeSettings ou fallback
+  const blogConfig = themeSettings?.branding ? {
+    logo: themeSettings.branding.logoLight || getDefaultConfig(blogId).logo,
+    alt: `${themeSettings.branding.siteTitle || getDefaultConfig(blogId).title} Logo`,
+    title: themeSettings.branding.siteTitle || getDefaultConfig(blogId).title
+  } : getDefaultConfig(blogId)
+
   useEffect(() => {
-    fetch('/api/categories-with-articles')
-      .then(res => res.json())
-      .then(data => setCategories(data))
-  }, [])
+    // Buscar configurações do tema
+    const fetchThemeSettings = async () => {
+      try {
+        const response = await fetch(`/api/blog-settings?blogId=${blogId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setThemeSettings(data.themeSettings)
+        }
+      } catch (error) {
+        console.error('Erro ao buscar configurações do tema:', error)
+      }
+    }
+
+    // Buscar categorias
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`/api/categories-with-articles?blogId=${blogId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setCategories(data)
+        }
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error)
+      }
+    }
+
+    fetchThemeSettings()
+    fetchCategories()
+  }, [blogId])
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -33,19 +107,7 @@ export default function Header() {
     }
   }, [router.events])
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setCategoryDropdownOpen(false)
-      }
-    }
-    if (isCategoryDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isCategoryDropdownOpen])
+  
 
   const cleanPath = (path: string) => path.split('?')[0].replace(/\/$/, '') || '/';
   const isActive = (href: string) => {
@@ -57,43 +119,33 @@ export default function Header() {
 
   const navLinks = (
     <>
-      <Link href="/" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/" className={`block py-2 text-lg text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
         Início
       </Link>
       
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setCategoryDropdownOpen(v => !v)}
-          className={`w-full text-left md:text-center py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900 flex justify-between items-center md:inline-flex${isActive('/categories') ? ' font-bold text-blue-600' : ''}`}
-        >
-          Categorias
-          <svg className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-        
-        {isCategoryDropdownOpen && (
-          <div className="md:absolute md:left-0 mt-2 w-full md:w-64 rounded-md md:shadow-lg bg-white md:border md:border-gray-200 z-20">
-            <div className="pl-4 md:pl-0 py-2 space-y-2 md:space-y-0">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/categories/${cat.slug}`}
-                  className={`block text-gray-500 hover:text-blue-700 md:px-4 md:py-2 md:hover:bg-gray-100${router.asPath.startsWith(`/categories/${cat.slug}`) ? ' font-semibold text-blue-600' : ''}`}
-                >
-                  {cat.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Categorias no mobile */}
+      <div className="py-2">
+        <div className="text-lg font-semibold text-gray-800 mb-2">CATEGORIAS</div>
+        <div className="ml-4 space-y-1">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/categories/${cat.slug}`}
+              className="block py-1 text-base text-gray-600 hover:text-gray-900"
+            >
+              {cat.title}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <Link href="/sobre" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/sobre" className={`block py-2 text-lg text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
         Sobre
       </Link>
-      <Link href="/contato" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/contato" className={`block py-2 text-lg text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
         Contato
       </Link>
-      <Link href="/api/auth/login?returnTo=/admin" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
+      <Link href="/api/auth/login?returnTo=/admin" className={`block py-2 text-lg text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
         Área Restrita
       </Link>
     </>
@@ -104,14 +156,14 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex-shrink-0">
-            <div className="relative w-[180px] h-[50px] md:w-[220px] md:h-[60px]">
+            <div className="relative w-[220px] h-[65px] md:w-[280px] md:h-[80px]">
               <Image 
-                src="/images/cbrazil_logo.png" 
-                alt="cbrazil.com Logo" 
+                src={blogConfig.logo} 
+                alt={blogConfig.alt} 
                 fill
                 style={{ objectFit: 'contain' }}
                 priority
-                sizes="(max-width: 768px) 180px, 220px"
+                sizes="(max-width: 768px) 220px, 280px"
               />
             </div>
           </Link>
@@ -119,7 +171,49 @@ export default function Header() {
           {/* Navegação Principal */}
           <nav className="hidden md:flex items-center flex-grow justify-center">
             <div className="flex items-center space-x-8">
-              {navLinks}
+              <Link href="/" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/') ? ' font-bold text-blue-600' : ''}`}>
+                Início
+              </Link>
+              
+              {/* Dropdown Categorias */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                  className="flex items-center space-x-1 py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900"
+                >
+                  <span>CATEGORIAS</span>
+                  <svg className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {isCategoriesOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                    <div className="py-1">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/categories/${cat.slug}`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          onClick={() => setIsCategoriesOpen(false)}
+                        >
+                          {cat.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <Link href="/sobre" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/sobre') ? ' font-bold text-blue-600' : ''}`}>
+                Sobre
+              </Link>
+              <Link href="/contato" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/contato') ? ' font-bold text-blue-600' : ''}`}>
+                Contato
+              </Link>
+              <Link href="/api/auth/login?returnTo=/admin" className={`block md:inline-block py-2 md:py-0 text-lg text-gray-600 hover:text-gray-900${isActive('/admin') ? ' font-bold text-blue-600' : ''}`}>
+                Área Restrita
+              </Link>
             </div>
           </nav>
 

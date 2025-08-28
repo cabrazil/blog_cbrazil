@@ -65,7 +65,7 @@ async function handleCreatePrompt(req: NextApiRequest, res: NextApiResponse) {
         content,
         isActive,
         metadata,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1), // Adicionado para multi-tenant
       }
     });
     

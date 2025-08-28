@@ -38,7 +38,7 @@ export default function Contato() {
         <title>Contato - CBrazil Blog</title>
         <meta name="description" content="Entre em contato com o CBrazil Blog" />
       </Head>
-      <Header />
+      <Header blogId={1} />
       <main className="min-h-[60vh] bg-gray-50 flex flex-col items-center justify-center py-12 px-4">
         <div className="flex justify-center items-center mb-8">
           <div className="relative w-[800px] h-[400px]">
@@ -93,7 +93,7 @@ export default function Contato() {
           </form>
         </div>
       </main>
-      <Footer />
+      <Footer blogId={1} />
     </>
   );
 } 

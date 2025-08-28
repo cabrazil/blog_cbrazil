@@ -13,10 +13,12 @@ export default async function handler(
   }
 
   try {
+    const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
+    
     switch (req.method) {
       case "GET":
         const prompt = await prisma.aiPrompt.findFirst({
-          where: { id: promptId, blogId: 1 },
+          where: { id: promptId, blogId: blogId },
         });
 
         if (!prompt) {
@@ -33,7 +35,7 @@ export default async function handler(
         }
 
         const updatedPrompt = await prisma.aiPrompt.update({
-          where: { id: promptId, blogId: 1 },
+          where: { id: promptId, blogId: blogId },
           data: {
             name,
             content,
@@ -45,7 +47,7 @@ export default async function handler(
 
       case "DELETE":
         await prisma.aiPrompt.delete({
-          where: { id: promptId, blogId: 1 },
+          where: { id: promptId, blogId: blogId },
         });
 
         res.status(204).end();

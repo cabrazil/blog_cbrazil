@@ -16,9 +16,10 @@ type ArticleWithCategory = Article & {
 
 interface NewsDetailProps {
   article: ArticleWithCategory;
+  blogId: number;
 }
 
-export default function NewsDetail({ article }: NewsDetailProps) {
+export default function NewsDetail({ article, blogId }: NewsDetailProps) {
   if (!article) {
     return <div>Artigo não encontrado</div>;
   }
@@ -31,7 +32,7 @@ export default function NewsDetail({ article }: NewsDetailProps) {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header blogId={blogId} />
         
         <main className="container mx-auto px-4 py-8">
           <article className="max-w-4xl mx-auto">
@@ -93,7 +94,7 @@ export default function NewsDetail({ article }: NewsDetailProps) {
           </article>
         </main>
 
-        <Footer />
+        <Footer blogId={blogId} />
       </div>
     </>
   );
@@ -101,12 +102,13 @@ export default function NewsDetail({ article }: NewsDetailProps) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { slug } = context.params!;
+  const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
 
   try {
     const article = await prisma.article.findFirst({
       where: { 
         slug: slug as string,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
       include: { category: true, author: true },
     });
@@ -118,6 +120,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         article: JSON.parse(JSON.stringify(article)),
+        blogId,
       },
     };
   } catch (error) {

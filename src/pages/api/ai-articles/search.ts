@@ -12,17 +12,20 @@ export default async function handler(
   try {
     const { query, category, limit = 10, page = 1 } = req.query;
     
+    // Obter blogId com fallback
+    const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
+    
     // Construir a query de busca
     const where: any = {
       published: true,
-      blogId: 1, // Adicionado para multi-tenant
+      blogId: blogId, // Adicionado para multi-tenant
     };
     
     // Filtrar por categoria
     if (category) {
       const categoryObj = await prisma.category.findFirst({
         where: {
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId, // Adicionado para multi-tenant
           OR: [
             { id: isNaN(Number(category)) ? undefined : Number(category) },
             { slug: String(category) },

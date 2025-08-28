@@ -21,7 +21,7 @@ export default function Home() {
     const fetchArticles = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/news?page=1&limit=6", {
+        const response = await fetch("/api/news?page=1&limit=4", {
           headers: {
             'Cache-Control': 'public, max-age=60'
           }
@@ -125,7 +125,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header blogId={1} />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
             <div className="h-64 bg-gray-200 rounded-lg w-full"></div>
@@ -137,7 +137,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <Footer />
+        <Footer blogId={1} />
       </div>
     );
   }
@@ -151,59 +151,54 @@ export default function Home() {
       </Head>
       
       <div className="flex flex-col min-h-screen bg-gray-50">
-        <Header />
+        <Header blogId={1} />
 
         <main className="flex-grow">
           <HeroImage />
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Artigos em Destaque</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {news.slice(0, 6).map((article) => {
-                // Verificar se a URL da imagem é válida
-                const imageUrl = isValidImageUrl(article.imageUrl)
-                  ? article.imageUrl
-                  : getDefaultImageUrl(article.title);
-
-                return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            {/* Seção de Artigos em Destaque */}
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Artigos em Destaque</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {news.map((article, index) => (
                   <article key={article.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     <Link href={`/news/${article.slug}`}>
                       <div className="relative h-48 w-full">
                         <ArticleImage
-                          src={imageUrl}
+                          src={isValidImageUrl(article.imageUrl) ? article.imageUrl! : getDefaultImageUrl(article.title)}
                           alt={article.title}
-                          className="h-48 w-full"
+                          className="h-full w-full"
                         />
                       </div>
                       <div className="p-6">
-                        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                          <span>{article.category?.title || 'Sem categoria'}</span>
-                          <span>•</span>
-                          <time dateTime={article.datetime}>
-                            {format(new Date(article.date), "d 'de' MMMM 'de' yyyy", {
-                              locale: ptBR,
-                            })}
-                          </time>
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            IA para Iniciantes
+                          </span>
+                                                     <span className="ml-2">
+                             {format(new Date(article.date), "d 'de' MMMM 'de' yyyy", {
+                               locale: ptBR,
+                             })}
+                           </span>
                         </div>
-                        <h2 className="home-article-title">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
                           {article.title}
-                        </h2>
-                        <p className="home-article-description line-clamp-2 mb-4">
+                        </h3>
+                        <p className="text-gray-600 line-clamp-3 mb-4">
                           {article.description}
                         </p>
-                        <div className="flex justify-end">
-                          <span className="text-blue-600 hover:text-blue-800 text-xs inline-flex items-center">
-                            LEIA MAIS
-                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </span>
+                        <div className="flex items-center justify-between">
+                          <div className="text-blue-600 font-medium text-sm hover:text-blue-800 transition-colors">
+                            LEIA MAIS →
+                          </div>
                         </div>
                       </div>
                     </Link>
                   </article>
-                );
-              })}
+                ))}
+              </div>
             </div>
 
             {totalArticles > 6 && (
@@ -220,7 +215,7 @@ export default function Home() {
           </div>
         </main>
 
-        <Footer />
+        <Footer blogId={1} />
       </div>
     </>
   );

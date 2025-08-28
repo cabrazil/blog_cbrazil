@@ -12,7 +12,7 @@ export default function Disclaimer() {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header blogId={1} />
 
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-lg shadow-lg p-8">
@@ -51,7 +51,7 @@ export default function Disclaimer() {
           </div>
         </main>
 
-        <Footer />
+        <Footer blogId={1} />
       </div>
     </>
   );

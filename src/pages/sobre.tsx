@@ -13,7 +13,7 @@ export default function Sobre() {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header blogId={1} />
 
         {/* Hero Section com Foto */}
         <div className="flex justify-center items-center py-12">
@@ -81,7 +81,7 @@ export default function Sobre() {
           </div>
         </div>
 
-        <Footer />
+        <Footer blogId={1} />
       </div>
     </>
   );

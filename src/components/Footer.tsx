@@ -10,14 +10,18 @@ import {
 import { useState, useEffect } from "react";
 import { Category } from "@prisma/client";
 
-export default function Footer() {
+interface FooterProps {
+  blogId?: number;
+}
+
+export default function Footer({ blogId = 1 }: FooterProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/categories");
+        const response = await fetch(`/api/categories?blogId=${blogId}`);
         if (!response.ok) {
           throw new Error("Erro ao carregar categorias");
         }
@@ -31,7 +35,7 @@ export default function Footer() {
     };
 
     fetchCategories();
-  }, []);
+  }, [blogId]);
 
   const socialLinks = [
     {

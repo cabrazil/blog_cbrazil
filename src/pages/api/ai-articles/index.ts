@@ -47,10 +47,12 @@ export default async function handler(
 
     // Buscar a categoria selecionada
     console.log("API: Verificando categoria...");
+    const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
+    console.log("API: Using blogId =", blogId);
     const category = await prisma.category.findFirst({
       where: {
         id: categoryId,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
     });
 
@@ -65,7 +67,7 @@ export default async function handler(
     const author = await prisma.author.findFirst({
       where: {
         id: authorId,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
     });
 
@@ -82,7 +84,7 @@ export default async function handler(
       prompt = await prisma.aiPrompt.findFirst({
         where: {
           id: promptId,
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId, // Adicionado para multi-tenant
         },
       });
       console.log("API: Prompt encontrado:", prompt);
@@ -206,7 +208,7 @@ export default async function handler(
           aiModel: "gpt-4",
           aiPrompt: finalPrompt,
           keywords: category.aiKeywords || [],
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId, // Adicionado para multi-tenant
         },
       });
       console.log("API: Artigo criado:", article);

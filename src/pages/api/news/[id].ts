@@ -21,10 +21,11 @@ export default async function handler(
   // GET - Buscar artigo
   if (req.method === "GET") {
     try {
+      const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
       const article = await prisma.article.findFirst({
         where: {
           id: articleId,
-          blogId: 1, // Adicionado para multi-tenant
+          blogId: blogId, // Adicionado para multi-tenant
         },
         include: {
           author: true,
@@ -63,8 +64,9 @@ export default async function handler(
       }
 
       // Verificar se o artigo existe
+      const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
       const existingArticle = await prisma.article.findFirst({
-        where: { id: articleId, blogId: 1 },
+        where: { id: articleId, blogId: blogId },
       });
 
       if (!existingArticle) {
@@ -79,7 +81,7 @@ export default async function handler(
 
       // Atualizar o artigo
       const updatedArticle = await prisma.article.update({
-        where: { id: articleId, blogId: 1 }, // Adicionado para multi-tenant
+        where: { id: articleId, blogId: blogId }, // Adicionado para multi-tenant
         data: {
           title,
           description,
@@ -110,8 +112,9 @@ export default async function handler(
   else if (req.method === "DELETE") {
     try {
       // Verificar se o artigo existe
+      const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
       const existingArticle = await prisma.article.findFirst({
-        where: { id: articleId, blogId: 1 },
+        where: { id: articleId, blogId: blogId },
       });
 
       if (!existingArticle) {
@@ -120,7 +123,7 @@ export default async function handler(
 
       // Excluir o artigo
       await prisma.article.delete({
-        where: { id: articleId, blogId: 1 }, // Adicionado para multi-tenant
+        where: { id: articleId, blogId: blogId }, // Adicionado para multi-tenant
       });
 
       return res.status(204).send(null); // 204 No Content é uma resposta comum para DELETE bem-sucedido

@@ -23,9 +23,10 @@ interface CategoryWithArticles extends Category {
 interface CategoryPageProps {
   category: CategoryWithArticles | null;
   totalPages: number;
+  blogId: number;
 }
 
-export default function CategoryPage({ category, totalPages: initialTotalPages }: CategoryPageProps) {
+export default function CategoryPage({ category, totalPages: initialTotalPages, blogId }: CategoryPageProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState(category?.articles || []);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
@@ -39,13 +40,13 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
   if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        <Header blogId={blogId} />
         <main className="flex-grow bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Categoria não encontrada</h1>
           </div>
         </main>
-        <Footer />
+        <Footer blogId={blogId} />
       </div>
     );
   }
@@ -75,7 +76,7 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
 
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <div className="bg-gray-100">
-          <Header />
+          <Header blogId={blogId} />
         </div>
 
         <main className="container mx-auto px-4 py-8 max-w-4xl flex-grow">
@@ -161,7 +162,7 @@ export default function CategoryPage({ category, totalPages: initialTotalPages }
         </main>
 
         <div className="bg-gray-100">
-          <Footer />
+          <Footer blogId={blogId} />
         </div>
       </div>
     </>
@@ -173,12 +174,13 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
   const slug = params?.slug as string;
   const page = parseInt(query.page as string) || 1;
   const limit = 6;
+  const blogId = Number(process.env.BLOG_ID || process.env.NEXT_PUBLIC_BLOG_ID || 1);
 
   try {
     const category = await prisma.category.findFirst({
       where: {
         slug,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
     });
 
@@ -187,6 +189,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
         props: {
           category: null,
           totalPages: 0,
+          blogId,
         },
       };
     }
@@ -195,7 +198,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       where: {
         categoryId: category.id,
         published: true,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
     });
 
@@ -205,7 +208,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       where: {
         categoryId: category.id,
         published: true,
-        blogId: 1, // Adicionado para multi-tenant
+        blogId: blogId, // Adicionado para multi-tenant
       },
       include: {
         author: {
@@ -239,6 +242,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
           articles: serializedArticles,
         },
         totalPages,
+        blogId,
       },
     };
   } catch (error) {
@@ -247,6 +251,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }) 
       props: {
         category: null,
         totalPages: 0,
+        blogId,
       },
     };
   } finally {
